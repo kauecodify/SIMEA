@@ -238,12 +238,6 @@ Variaveis de ambiente necessarias:
 
 ---
 
-## Licenca
-
-Este projeto e licenciado sob a Licenca MIT. Veja o arquivo LICENSE para mais detalhes.
-
----
-
 ## Contato
 
 Para mais informacoes, entre em contato:
