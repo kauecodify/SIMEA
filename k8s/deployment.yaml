@@ -1,0 +1,189 @@
+--- 
+# Deployment para o Motor de Matching de Alta Frequencia
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hft-engine
+  labels:
+    app: simea
+    component: hft-engine
+    tier: backend
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: simea
+      component: hft-engine
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 15%
+  template:
+    metadata:
+      labels:
+        app: simea
+        component: hft-engine
+    spec:
+      containers:
+      - name: hft-engine
+        image: simea/hft-engine:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2000m"
+            memory: "2Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 1
+        envFrom:
+        - configMapRef:
+            name: simea-config
+        - secretRef:
+            name: simea-secrets
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      nodeSelector:
+        kubernetes.io/arch: arm64
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - hft-engine
+              topologyKey: kubernetes.io/hostname
+
+---
+# Deployment para API Gateway
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  labels:
+    app: simea
+    component: api-gateway
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: simea
+      component: api-gateway
+  template:
+    metadata:
+      labels:
+        app: simea
+        component: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: simea/api-gateway:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        envFrom:
+        - configMapRef:
+            name: simea-config
+        - secretRef:
+            name: simea-secrets
+
+---
+# Deployment para Servico Quantico
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quantum-service
+  labels:
+    app: simea
+    component: quantum-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simea
+      component: quantum-service
+  template:
+    metadata:
+      labels:
+        app: simea
+        component: quantum-service
+    spec:
+      containers:
+      - name: quantum-service
+        image: simea/quantum-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "1Gi"
+          limits:
+            cpu: "4000m"
+            memory: "4Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: simea-config
+        - secretRef:
+            name: simea-secrets

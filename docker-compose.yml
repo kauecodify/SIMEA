@@ -1,0 +1,241 @@
+version: '3.8'
+
+# Docker Compose para desenvolvimento local do SIMEA
+# Uso: docker-compose up -d
+
+services:
+  # PostgreSQL - Banco de dados principal
+  postgres:
+    image: timescale/timescaledb:2.11.0-pg15
+    container_name: simea-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: simea
+      POSTGRES_PASSWORD: simea123
+      POSTGRES_DB: simea_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U simea -d simea_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Cache e estado
+  redis:
+    image: redis:7.0-alpine
+    container_name: simea-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Kafka - Mensageria
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: simea-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+    ports:
+      - "2181:2181"
+    networks:
+      - simea-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: simea-kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: simea-api
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://simea:simea123@postgres:5432/simea_dev
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:29092
+      JWT_SECRET: dev_secret_change_in_production
+      QUANTUM_API_URL: http://quantum:8000
+    volumes:
+      - ./api:/app/api
+      - /app/api/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # HFT Engine
+  hft:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.hft
+    container_name: simea-hft
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    environment:
+      RUST_LOG: info
+      DATABASE_URL: postgresql://simea:simea123@postgres:5432/simea_dev
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:29092
+    ports:
+      - "8080:8080"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Quantum Service
+  quantum:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.quantum
+    container_name: simea-quantum
+    restart: unless-stopped
+    environment:
+      QUANTUM_API_KEY: dev_key_change_in_production
+      QUANTUM_API_URL: https://braket.us-east-1.amazonaws.com
+      QUANTUM_DEFAULT_QPU: arn:aws:braket:::device/quantum-simulator/amazon/sv1
+    ports:
+      - "8000:8000"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # Frontend (para desenvolvimento)
+  frontend:
+    image: nginx:alpine
+    container_name: simea-frontend
+    restart: unless-stopped
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro
+      - ./assets:/usr/share/nginx/html/assets:ro
+    ports:
+      - "80:80"
+    networks:
+      - simea-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Prometheus - Monitoramento
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: simea-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - simea-network
+
+  # Grafana - Visualizacao
+  grafana:
+    image: grafana/grafana:latest
+    container_name: simea-grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3001:3000"
+    networks:
+      - simea-network
+
+  # Jaeger - Tracing
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: simea-jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+    networks:
+      - simea-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  simea-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

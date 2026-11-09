@@ -1,0 +1,71 @@
+# Dependencias para o Servico de Integracao Quantica
+
+# Computacao Quantica
+qiskit==0.44.0
+qiskit-ibm-runtime==0.15.0
+pennylane==0.31.0
+cirq==1.2.0
+cirq-core==1.2.0
+
+# Otimizacao
+scipy==1.11.1
+numpy==1.24.3
+pandas==2.0.3
+
+# HTTP e APIs
+fastapi==0.103.0
+uvicorn==0.23.2
+httpx==0.25.0
+python-dotenv==1.0.0
+
+# Async
+anyio==4.0.0
+
+# Logging
+structlog==23.1.0
+python-json-logger==2.0.7
+
+# Configuracao
+pydantic==2.4.2
+pydantic-settings==2.0.3
+
+# Database
+sqlalchemy==2.0.15
+asyncpg==0.28.0
+
+# Redis
+redis==4.5.5
+
+# Kafka
+aiokafka==0.8.0
+
+# Metrics
+prometheus-client==0.17.1
+
+# Health checks
+py-healthcheck==1.0.1
+
+# UUID
+python-multipart==0.0.6
+uuid==1.30
+
+# Date/Time
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Criptografia
+cryptography==41.0.2
+
+# Testes
+pytest==7.4.0
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Type checking
+mypy==1.4.1
+sqlalchemy2-stubs==0.0.2a35
+
+# Development
+black==23.7.0
+isort==5.12.0
+flake8==6.0.0

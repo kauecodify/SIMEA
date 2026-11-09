@@ -1,0 +1,138 @@
+--- 
+# ConfigMap para configuracoes gerais do SIMEA
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simea-config
+  labels:
+    app: simea
+    component: config
+data:
+  # Configuracoes do Ambiente
+  ENVIRONMENT: "production"
+  NODE_ENV: "production"
+  
+  # Configuracoes de Banco de Dados
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "simea_prod"
+  DATABASE_SSL: "true"
+  DATABASE_POOL_SIZE: "50"
+  DATABASE_POOL_TIMEOUT: "30000"
+  
+  # Configuracoes de Cache (Redis)
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  REDIS_DB: "0"
+  REDIS_TTL_DEFAULT: "3600"
+  REDIS_TTL_SESSION: "86400"
+  REDIS_TTL_TRANSACTION: "300"
+  REDIS_TTL_YIELD: "1"
+  
+  # Configuracoes de Mensageria (Kafka)
+  KAFKA_BROKERS: "kafka-0.kafka:9092,kafka-1.kafka:9092,kafka-2.kafka:9092"
+  KAFKA_CLIENT_ID: "simea"
+  KAFKA_RETRIES: "5"
+  KAFKA_RETRY_DELAY: "1000"
+  KAFKA_MAX_MESSAGES: "10000"
+  KAFKA_FETCH_MIN_BYTES: "1024"
+  KAFKA_FETCH_MAX_WAIT: "5000"
+  
+  # Configuracoes de API
+  API_PORT: "3000"
+  API_HOST: "0.0.0.0"
+  API_RATE_LIMIT: "1000"
+  API_RATE_LIMIT_WINDOW: "60000"
+  API_CORS_ORIGIN: "*"
+  API_MAX_REQUEST_SIZE: "10mb"
+  API_TIMEOUT: "30000"
+  
+  # Configuracoes de Autenticacao
+  JWT_SECRET: "CHANGE_ME_IN_PRODUCTION"
+  JWT_EXPIRES_IN: "900"
+  JWT_REFRESH_EXPIRES_IN: "604800"
+  JWT_ISSUER: "simea.gov.br"
+  JWT_AUDIENCE: "simea-api"
+  
+  # Configuracoes de Seguranca
+  SESSION_SECRET: "CHANGE_ME_IN_PRODUCTION"
+  SESSION_COOKIE_NAME: "simea_session"
+  SESSION_COOKIE_SECURE: "true"
+  SESSION_COOKIE_HTTP_ONLY: "true"
+  SESSION_COOKIE_SAME_SITE: "strict"
+  SESSION_COOKIE_MAX_AGE: "86400000"
+  
+  # Configuracoes de Integracao Quantica
+  QUANTUM_API_URL: "https://braket.us-gov-west-1.amazonaws.com"
+  QUANTUM_API_REGION: "us-gov-west-1"
+  QUANTUM_DEFAULT_QPU: "arn:aws:braket:us-gov-west-1::device/qpu/rigetti/Aspen-M-1"
+  QUANTUM_SIMULATOR: "arn:aws:braket:::device/quantum-simulator/amazon/sv1"
+  QUANTUM_TIMEOUT: "300000"
+  QUANTUM_MAX_RETRIES: "3"
+  QUANTUM_BATCH_SIZE: "100"
+  
+  # Configuracoes de Logging
+  LOG_LEVEL: "info"
+  LOG_FORMAT: "json"
+  LOG_TIMESTAMP: "true"
+  LOG_COLORIZE: "false"
+  
+  # Configuracoes de Monitoramento
+  METRICS_PORT: "9090"
+  METRICS_PREFIX: "simea"
+  HEALTH_CHECK_INTERVAL: "5000"
+  
+  # Configuracoes de HFT Engine
+  HFT_PORT: "8080"
+  HFT_WORKERS: "8"
+  HFT_MAX_CONNECTIONS: "10000"
+  HFT_TRANSACTION_TIMEOUT: "10"
+  HFT_BATCH_SIZE: "1000"
+  HFT_FLUSH_INTERVAL: "100"
+  
+  # Configuracoes de Auditoria
+  AUDIT_ENABLED: "true"
+  AUDIT_LOG_LEVEL: "debug"
+  AUDIT_STORAGE_TYPE: "s3"
+  AUDIT_S3_BUCKET: "simea-audit-logs"
+  AUDIT_S3_PREFIX: "audit"
+  AUDIT_RETENTION_DAYS: "3650"
+  
+  # Configuracoes de Drex/PIX
+  DREX_API_URL: "https://api.drex.bcb.gov.br"
+  DREX_API_TIMEOUT: "5000"
+  DREX_MAX_RETRIES: "3"
+  PIX_API_URL: "https://api.pix.bcb.gov.br"
+  PIX_API_TIMEOUT: "5000"
+  PIX_MAX_RETRIES: "3"
+  
+  # Configuracoes de INPE (Validacao Orbital)
+  INPE_API_URL: "https://api.inpe.br"
+  INPE_API_TIMEOUT: "10000"
+  INPE_MAX_RETRIES: "3"
+  INPE_SATELLITE_DATA: "true"
+  
+  # Configuracoes de Pool Soberano
+  POOL_MIN_INVESTMENT: "1000000"
+  POOL_MAX_INVESTMENT: "1000000000"
+  POOL_DEFAULT_YIELD: "12.5"
+  POOL_MIN_YIELD: "5"
+  POOL_MAX_YIELD: "25"
+  POOL_AUDIT_THRESHOLD: "10000000"
+  
+  # Configuracoes de Recuperacao Judicial
+  RECOVERY_MIN_SCORE: "70"
+  RECOVERY_MAX_DEBT_RATIO: "0.8"
+  RECOVERY_MIN_COLLATERAL: "1.2"
+  RECOVERY_MAX_TERM: "360"
+  
+  # Configuracoes de Controle Portuario
+  PORT_API_URL: "https://api.portos.gov.br"
+  PORT_API_TIMEOUT: "5000"
+  PORT_MAX_RETRIES: "3"
+  PORT_DEFAULT_TARIFF: "1.5"
+"""
+
+with open('/workspace/github__kauecodify__SIMEA/k8s/configmap.yaml', 'w') as f:
+    f.write(content)

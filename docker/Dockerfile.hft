@@ -1,0 +1,46 @@
+# Dockerfile para o Motor de Matching de Alta Frequencia (HFT)
+# Base: Rust para performance de milissegundos
+
+FROM rust:1.70-slim as builder
+
+# Instalar dependencias
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar codigo fonte
+WORKDIR /app
+COPY hft-engine/Cargo.toml hft-engine/Cargo.lock hft-engine/src/ ./hft-engine/
+
+# Compilar em release mode
+RUN cd hft-engine && \
+    cargo build --release && \
+    cp target/release/hft-engine /app/
+
+# Stage final
+FROM debian:bullseye-slim
+
+# Copiar binario compilado
+COPY --from=builder /app/hft-engine /usr/local/bin/hft-engine
+
+# Criar usuario nao-root
+RUN useradd -r -s /bin/false simea
+
+# Configurar permissões
+RUN mkdir -p /app/config /app/data && \
+    chown simea:simea /app/config /app/data
+
+# Portas expostas
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Executar como usuario nao-root
+USER simea
+WORKDIR /app
+
+# Comando de inicializacao
+CMD ["/usr/local/bin/hft-engine"]

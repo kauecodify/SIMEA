@@ -1,0 +1,131 @@
+--- 
+# Ingress para SIMEA (HTTP/HTTPS)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simea-ingress
+  labels:
+    app: simea
+    component: ingress
+  annotations:
+    # Configuracoes do ALB Ingress Controller (AWS)
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-gov-west-1:ACCOUNT_ID:certificate/CERTIFICATE_ID
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
+    
+    # Configuracoes de SSL
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    
+    # Configuracoes de Health Check
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/healthcheck-port: '80'
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/success-codes: '200,301'
+    
+    # Configuracoes de WAF
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:us-gov-west-1:ACCOUNT_ID:global/webacl/SIMEA-WAF/ID
+    
+    # Configuracoes de Logging
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http2.enabled=true,access_logs.s3.enabled=true,access_logs.s3.bucket=simea-access-logs,access_logs.s3.prefix=alb
+    
+    # Configuracoes de Rate Limiting
+    alb.ingress.kubernetes.io/actions.simea-rate-limit: >-
+      {
+        "Type": "fixed-response",
+        "FixedResponseConfig": {
+          "ContentType": "APPLICATION_JSON",
+          "MessageBody": "{\"error\":\"rate_limit_exceeded\"}",
+          "StatusCode": "429"
+        }
+      }
+    
+    # Configuracoes de CORS
+    alb.ingress.kubernetes.io/cors-allow-origin: "*"
+    alb.ingress.kubernetes.io/cors-allow-methods: "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+    alb.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    alb.ingress.kubernetes.io/cors-allow-credentials: "true"
+    alb.ingress.kubernetes.io/cors-expose-headers: "Authorization"
+    alb.ingress.kubernetes.io/cors-max-age: "86400"
+
+spec:
+  rules:
+  - host: simea.gov.br
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80
+      
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80
+      
+      - path: /quantum
+        pathType: Prefix
+        backend:
+          service:
+            name: quantum-service
+            port:
+              number: 80
+      
+      - path: /health
+        pathType: Exact
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80
+
+  # Regra para redirecionamento HTTP -> HTTPS
+  - host: simea.gov.br
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ssl-redirect
+            port:
+              name: use-annotation
+
+--- 
+# Ingress para Ambiente de Homologacao
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simea-homolog-ingress
+  labels:
+    app: simea
+    component: ingress
+    env: homolog
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-gov-west-1:ACCOUNT_ID:certificate/HOMOLOG_CERT_ID
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+
+spec:
+  rules:
+  - host: homolog.simea.gov.br
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 80

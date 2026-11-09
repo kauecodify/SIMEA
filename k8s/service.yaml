@@ -1,0 +1,124 @@
+--- 
+# Service para HFT Engine (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: hft-engine
+  labels:
+    app: simea
+    component: hft-engine
+spec:
+  type: ClusterIP
+  selector:
+    app: simea
+    component: hft-engine
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+
+---
+# Service para API Gateway (LoadBalancer)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  labels:
+    app: simea
+    component: api-gateway
+spec:
+  type: LoadBalancer
+  selector:
+    app: simea
+    component: api-gateway
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 3000
+    protocol: TCP
+
+---
+# Service para Quantum Service (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: quantum-service
+  labels:
+    app: simea
+    component: quantum-service
+spec:
+  type: ClusterIP
+  selector:
+    app: simea
+    component: quantum-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8000
+    protocol: TCP
+
+---
+# Service para Kafka (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  labels:
+    app: simea
+    component: kafka
+spec:
+  type: ClusterIP
+  selector:
+    app: kafka
+    component: broker
+  ports:
+  - name: kafka
+    port: 9092
+    targetPort: 9092
+    protocol: TCP
+
+---
+# Service para Redis (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: simea
+    component: redis
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: redis
+    component: cluster
+  ports:
+  - name: redis
+    port: 6379
+    targetPort: 6379
+    protocol: TCP
+
+---
+# Service para PostgreSQL (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: simea
+    component: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+    component: primary
+  ports:
+  - name: postgres
+    port: 5432
+    targetPort: 5432
+    protocol: TCP

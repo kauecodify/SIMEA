@@ -1,0 +1,48 @@
+# Dockerfile para Servico de Integracao Quantica (Python)
+# Base: Python 3.11 slim
+
+FROM python:3.11-slim as builder
+
+# Instalar dependencias de build
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar codigo fonte
+WORKDIR /app
+COPY quantum/requirements.txt quantum/src/ ./quantum/
+
+# Instalar dependencias Python
+RUN cd quantum && \
+    pip install --user -r requirements.txt
+
+# Stage final
+FROM python:3.11-slim
+
+# Copiar dependencias e codigo
+COPY --from=builder /root/.local /root/.local
+COPY --from=builder /app/quantum /app/quantum
+
+# Configurar PATH
+ENV PATH=/root/.local/bin:$PATH
+
+# Criar usuario nao-root
+RUN useradd -r -s /bin/false simea
+
+# Configurar permissões
+RUN mkdir -p /app/config /app/data && \
+    chown simea:simea /app -R
+
+# Portas expostas
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
+
+# Executar como usuario nao-root
+USER simea
+WORKDIR /app/quantum
+
+# Comando de inicializacao
+CMD ["python", "src/main.py"]
