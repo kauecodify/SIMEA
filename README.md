@@ -33,6 +33,8 @@ Empresas que receberam recursos publicos (subsidios, financiamentos BNDES, incen
 - Lastro bio-digital para estabilizacao da moeda nacional
 - Reducao do deficit publico via retorno de investimentos
 
+<img width="255" height="142" alt="image" src="https://github.com/user-attachments/assets/b7294884-efbb-4b58-9719-a15c4b2ce296" />
+
 ---
 
 ## Mecanismo de Pool Soberano
