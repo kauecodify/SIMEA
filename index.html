@@ -4,80 +4,1659 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMEA — Sistema Inteligente de Macroeconomia e Estabilidade Ambiental</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
 :root {
-  --azul-inst: #1351B4;
-  --azul-marinho: #0B1F3A;
-  --branco: #FFFFFF;
-  --cinza-claro: #F5F7FA;
-  --cinza-medio: #DCE2EA;
-  --cinza-tip: #475467;
-  --verde: #16865C;
-  --vermelho: #C73535;
-  --amarelo-soft: #F4C430;
-  --borda: #E4E7EC;
+--azul-inst: #1351B4; --azul-marinho: #0B1F3A; --branco: #FFFFFF;
+--cinza-claro: #F5F7FA; --cinza-medio: #DCE2EA; --cinza-tip: #475467;
+--verde: #16865C; --vermelho: #C73535; --amarelo-soft: #F4C430;
+--borda: #E4E7EC;
+--sombra: 0 1px 2px rgba(11, 31, 58, .04), 0 1px 3px rgba(11, 31, 58, .06);
+--sombra-md: 0 4px 12px rgba(11, 31, 58, .08);
+--radius: 6px; --radius-lg: 8px;
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
+* { margin: 0; padding: 0; box-sizing: border-box }
+html, body { height: 100%; }
 body {
-  font-family: 'Inter', 'IBM Plex Sans', sans-serif;
-  background: var(--cinza-claro);
-  color: var(--azul-marinho);
-  font-size: 14px;
-  line-height: 1.5;
+font-family: 'Inter', 'IBM Plex Sans', system-ui, sans-serif;
+background: var(--cinza-claro); color: var(--azul-marinho);
+font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none }
+a { color: inherit; text-decoration: none }
+.top-strip { height: 4px; background: linear-gradient(90deg, var(--verde) 0%, var(--verde) 33%, var(--amarelo-soft) 33%, var(--amarelo-soft) 66%, var(--azul-inst) 66%, var(--azul-inst) 100%); }
+.header {
+background: var(--branco); border-bottom: 1px solid var(--borda);
+padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+position: sticky; top: 0; z-index: 50;
+}
+.header-left { display: flex; align-items: center; gap: 16px }
+.menu-toggle { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--azul-marinho); }
+.menu-toggle:hover { background: var(--cinza-claro) }
+.brand { display: flex; flex-direction: column }
+.brand-name { font-weight: 700; font-size: 15px; letter-spacing: .3px; color: var(--azul-marinho); }
+.brand-sub { font-size: 11px; color: var(--cinza-tip); letter-spacing: .5px; text-transform: uppercase }
+#brand-lowdata { cursor: pointer; padding: 1px 5px; border-radius: 3px; position: relative; display: inline-block; }
+#brand-lowdata:hover { background: rgba(19, 81, 180, .1); color: var(--azul-inst) }
+#brand-lowdata::after { content: ""; position: absolute; bottom: -1px; left: 5px; right: 5px; height: 1px; background: currentColor; opacity: 0; transition: opacity .2s }
+#brand-lowdata:hover::after { opacity: .5 }
+.header-right { display: flex; align-items: center; gap: 8px }
+.env-badge { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--cinza-claro); border: 1px solid var(--borda); border-radius: var(--radius); font-size: 11px; font-weight: 500; color: var(--cinza-tip); }
+.env-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--verde); box-shadow: 0 0 0 3px rgba(22, 134, 92, .15); }
+.sec-badge { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(22, 134, 92, .08); border: 1px solid rgba(22, 134, 92, .2); border-radius: var(--radius); font-size: 11px; font-weight: 500; color: var(--verde); }
+.icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--cinza-tip); position: relative; }
+.icon-btn:hover { background: var(--cinza-claro); color: var(--azul-marinho) }
+.user-chip { display: flex; align-items: center; gap: 10px; padding: 4px 10px 4px 4px; border: 1px solid var(--borda); border-radius: 20px; cursor: pointer; }
+.user-chip:hover { background: var(--cinza-claro) }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--azul-inst); color: var(--branco); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+.user-info { display: flex; flex-direction: column; line-height: 1.2 }
+.user-name { font-size: 12px; font-weight: 600; color: var(--azul-marinho) }
+.user-role { font-size: 10px; color: var(--cinza-tip) }
+.layout { display: flex; min-height: calc(100vh - 65px) }
+.sidebar { width: 248px; background: var(--branco); border-right: 1px solid var(--borda); padding: 16px 12px; flex-shrink: 0; overflow: hidden; }
+.nav-group { margin-bottom: 20px }
+.nav-group-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--cinza-tip); padding: 0 12px 8px; white-space: nowrap; }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--radius); color: var(--cinza-tip); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; margin-bottom: 2px; }
+.nav-item:hover { background: var(--cinza-claro); color: var(--azul-marinho) }
+.nav-item.active { background: rgba(19, 81, 180, .08); color: var(--azul-inst); font-weight: 600; }
+.nav-item svg { flex-shrink: 0; width: 18px; height: 18px; }
+.main { flex: 1; padding: 24px 32px 48px; overflow-x: hidden; max-width: 100%; }
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px) } to { opacity: 1; transform: translateY(0) } }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--borda); }
+.page-title { font-size: 22px; font-weight: 700; color: var(--azul-marinho); letter-spacing: -.3px; }
+.page-sub { font-size: 13px; color: var(--cinza-tip); margin-top: 4px; }
+.breadcrumb { font-size: 11px; color: var(--cinza-tip); margin-bottom: 8px; letter-spacing: .3px; text-transform: uppercase; }
+.breadcrumb span { color: var(--azul-inst); font-weight: 600; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; border: 1px solid transparent; }
+.btn-primary { background: var(--azul-inst); color: var(--branco); }
+.btn-primary:hover { background: #0F4299; }
+.btn-secondary { background: var(--branco); color: var(--azul-marinho); border-color: var(--borda); }
+.btn-secondary:hover { background: var(--cinza-claro); }
+.btn-sm { padding: 6px 10px; font-size: 12px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi { background: var(--branco); border: 1px solid var(--borda); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--sombra); }
+.kpi:hover { box-shadow: var(--sombra-md); transform: translateY(-1px); }
+.kpi-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--cinza-tip); }
+.kpi-icon { width: 32px; height: 32px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: var(--cinza-claro); color: var(--azul-inst); }
+.kpi-icon.green { background: rgba(22, 134, 92, .1); color: var(--verde); }
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--azul-marinho); letter-spacing: -.5px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--cinza-tip); }
+.trend { display: inline-flex; align-items: center; gap: 2px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+.trend.up { color: var(--verde); background: rgba(22, 134, 92, .1); }
+.trend.down { color: var(--vermelho); background: rgba(199, 53, 53, .1); }
+.grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+@media(max-width:1100px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+.card { background: var(--branco); border: 1px solid var(--borda); border-radius: var(--radius-lg); box-shadow: var(--sombra); overflow: hidden; }
+.card-head { padding: 16px 20px; border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--azul-marinho); }
+.card-sub { font-size: 11px; color: var(--cinza-tip); margin-top: 2px; }
+.card-body { padding: 20px; }
+.chart-wrap { height: 240px; position: relative; }
+.chart-svg { width: 100%; height: 100%; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: left; padding: 10px 16px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--cinza-tip); background: var(--cinza-claro); border-bottom: 1px solid var(--borda); }
+.table td { padding: 12px 16px; border-bottom: 1px solid var(--borda); color: var(--azul-marinho); }
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: var(--cinza-claro); }
+.table tbody tr { cursor: pointer; }
+.status { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.status.ok { background: rgba(22, 134, 92, .1); color: var(--verde); }
+.status.warn { background: rgba(244, 196, 48, .15); color: #8a6d00; }
+.status.err { background: rgba(199, 53, 53, .1); color: var(--vermelho); }
+.status.info { background: rgba(19, 81, 180, .1); color: var(--azul-inst); }
+.module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.module { background: var(--branco); border: 1px solid var(--borda); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; position: relative; overflow: hidden; }
+.module:hover { border-color: var(--azul-inst); box-shadow: var(--sombra-md); transform: translateY(-2px); }
+.module::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--azul-inst); opacity: 0; transition: opacity .2s; }
+.module:hover::before { opacity: 1; }
+.module-icon { width: 40px; height: 40px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; background: rgba(19, 81, 180, .08); color: var(--azul-inst); margin-bottom: 12px; }
+.module-name { font-size: 14px; font-weight: 600; color: var(--azul-marinho); margin-bottom: 4px; }
+.module-desc { font-size: 12px; color: var(--cinza-tip); line-height: 1.5; margin-bottom: 12px; }
+.module-status { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--verde); }
+.switch { position: relative; width: 38px; height: 22px; background: var(--cinza-medio); border-radius: 12px; cursor: pointer; }
+.switch.on { background: var(--azul-inst); }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: var(--branco); border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+.switch.on::after { transform: translateX(16px); }
+.toast { position: fixed; top: 80px; right: 24px; background: var(--branco); border: 1px solid var(--borda); border-left: 3px solid var(--verde); padding: 12px 16px; border-radius: var(--radius); box-shadow: var(--sombra-md); display: flex; align-items: center; gap: 10px; font-size: 13px; transform: translateX(400px); opacity: 0; transition: all .3s ease; z-index: 9999; }
+.toast.show { transform: translateX(0); opacity: 1; }
+.matrix-only { display: none; }
+.watermark { position: fixed; bottom: 10px; right: 10px; font-size: 10px; color: rgba(19, 81, 180, .4); font-family: 'JetBrains Mono', monospace; letter-spacing: .5px; z-index: 9999; pointer-events: none; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, .6); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
+.modal.show { display: flex; }
+.modal-content { background: var(--branco); border-radius: var(--radius-lg); max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, .3); }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-size: 18px; font-weight: 700; color: var(--azul-marinho); }
+.modal-close { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius); color: var(--cinza-tip); cursor: pointer; }
+.modal-close:hover { background: var(--cinza-claro); color: var(--azul-marinho); }
+.modal-body { padding: 24px; }
+.pool-banner { background: linear-gradient(135deg, #000800 0%, #001a00 100%); border: 1px solid #00ff41; border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.pool-banner-left { display: flex; align-items: center; gap: 12px; }
+.pool-banner-icon { width: 40px; height: 40px; border-radius: 8px; background: rgba(0, 255, 65, .15); border: 1px solid #00ff41; display: flex; align-items: center; justify-content: center; color: #00ff41; }
+.pool-banner-title { font-size: 14px; font-weight: 700; color: #00ff41; letter-spacing: .5px; }
+.pool-banner-sub { font-size: 11px; color: #00b030; margin-top: 2px; }
+.pool-banner-right { display: flex; gap: 20px; font-family: 'JetBrains Mono', monospace; }
+.pool-stat { text-align: right; }
+.pool-stat-label { font-size: 9px; color: #00b030; text-transform: uppercase; letter-spacing: .6px; font-weight: 600; }
+.pool-stat-val { font-size: 16px; color: #00ff41; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pool-table-wrap { max-height: 560px; overflow-y: auto; overflow-x: auto; }
+.pool-yield { display: inline-flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #00ff41; }
+.pool-yield.pulse { animation: yieldPulse .6s ease; }
+@keyframes yieldPulse { 0% { opacity: .4; } 100% { opacity: 1; } }
+.rating { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.rating.A { background: rgba(22, 134, 92, .1); color: var(--verde); }
+.rating.B { background: rgba(244, 196, 48, .15); color: #8a6d00; }
+.rating.C { background: rgba(199, 53, 53, .1); color: var(--vermelho); }
+.audit-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+.audit-badge.ok { background: rgba(22, 134, 92, .1); color: var(--verde); }
+.audit-badge.pending { background: rgba(244, 196, 48, .15); color: #8a6d00; }
+.yield-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+.yield-tab { padding: 6px 12px; border: 1px solid var(--borda); border-radius: var(--radius); font-size: 11px; font-weight: 600; color: var(--cinza-tip); cursor: pointer; }
+.yield-tab:hover { background: var(--cinza-claro); color: var(--azul-marinho); }
+.yield-tab.active { background: rgba(19, 81, 180, .08); border-color: var(--azul-inst); color: var(--azul-inst); }
+.progress-bar { height: 6px; background: var(--cinza-claro); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--azul-inst); border-radius: 3px; transition: width .3s ease; }
+.withdraw-section { margin-top: 20px; padding: 20px; background: var(--cinza-claro); border-radius: var(--radius); border: 1px solid var(--borda); }
+.withdraw-title { font-size: 14px; font-weight: 600; color: var(--azul-marinho); margin-bottom: 16px; }
+.withdraw-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.withdraw-field { display: flex; flex-direction: column; gap: 6px; }
+.withdraw-field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--cinza-tip); }
+.withdraw-field input { padding: 10px 12px; border: 1px solid var(--borda); border-radius: var(--radius); font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--azul-marinho); background: var(--branco); }
+.withdraw-field input:disabled { opacity: .5; cursor: not-allowed; }
+.withdraw-limit { padding: 12px; background: rgba(244, 196, 48, .1); border-radius: var(--radius); border-left: 3px solid var(--amarelo-soft); margin-bottom: 16px; }
+.withdraw-limit label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--cinza-tip); display: block; margin-bottom: 4px; }
+.withdraw-limit-value { font-size: 14px; font-weight: 700; color: var(--amarelo-soft); }
+.pix-restricted { display: none; align-items: center; gap: 8px; padding: 12px; background: rgba(199, 53, 53, .1); border-radius: var(--radius); border-left: 3px solid var(--vermelho); font-size: 12px; color: var(--vermelho); margin-bottom: 16px; }
+.port-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.port-metric { background: var(--cinza-claro); border-radius: var(--radius); padding: 12px 16px; }
+.port-metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--cinza-tip); margin-bottom: 4px; }
+.port-metric-value { font-size: 18px; font-weight: 700; color: var(--azul-inst); font-variant-numeric: tabular-nums; }
+.insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.insight-card { background: var(--branco); border: 1px solid var(--borda); border-radius: var(--radius-lg); padding: 16px; }
+.insight-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--azul-inst); margin-bottom: 12px; }
+.insight-bar-row { margin-bottom: 8px; }
+.insight-bar-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--cinza-tip); margin-bottom: 4px; }
+.insight-bar-track { height: 8px; background: var(--cinza-claro); border-radius: 4px; overflow: hidden; }
+.insight-bar-fill { height: 100%; background: var(--azul-inst); border-radius: 4px; transition: width .3s ease; }
+.insight-yield-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 12px; color: var(--azul-marinho); }
+.terminal-feed { height: 120px; overflow-y: auto; background: #000800; border: 1px solid #003d00; border-radius: var(--radius); padding: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #00ff41; }
+.terminal-line { padding: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.terminal-line .time { color: #00b030; margin-right: 8px; }
+.terminal-line .tag { color: #00ff41; margin-right: 8px; }
+.terminal-line .tag.alert { color: #ff0050; }
+.search-box { position: relative; margin-bottom: 16px; }
+.search-box input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--borda); border-radius: var(--radius); font-size: 13px; color: var(--azul-marinho); background: var(--branco); }
+.search-box input:focus { outline: none; border-color: var(--azul-inst); box-shadow: 0 0 0 3px rgba(19, 81, 180, .1); }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--cinza-tip); font-size: 14px; }
+.search-count { font-size: 11px; color: var(--cinza-tip); margin-top: 4px; text-align: right; }
+@media(max-width: 768px) {
+.header { padding: 12px 16px; }
+.main { padding: 16px 20px 32px; }
+.page-title { font-size: 18px; }
+.kpi-grid { grid-template-columns: 1fr; }
+.grid-2, .grid-3 { grid-template-columns: 1fr; }
+.user-info { display: none; }
 }
 
-/* Matrix Mode */
+/* ========================================================================
+   MATRIX MODE CSS
+   ======================================================================== */
 body.matrix-mode {
-  --azul-inst: #00ff41;
-  --azul-marinho: #00ff41;
-  --branco: #000a00;
-  --cinza-claro: #001200;
-  --cinza-medio: #003a00;
-  --cinza-tip: #00b030;
-  --verde: #00ff41;
-  --vermelho: #ff0050;
-  --amarelo-soft: #88ff00;
-  --borda: #003d00;
-  background: #000;
-  color: #00ff41;
-  font-family: 'JetBrains Mono', monospace;
+    --azul-inst: #00ff41; --azul-marinho: #00ff41; --branco: #000a00; --cinza-claro: #001200;
+    --cinza-medio: #003a00; --cinza-tip: #00b030; --verde: #00ff41; --vermelho: #ff0050;
+    --amarelo-soft: #88ff00; --borda: #003d00; --sombra: 0 0 6px rgba(0, 255, 65, .2);
+    --sombra-md: 0 0 18px rgba(0, 255, 65, .35);
+    background: #000; color: #00ff41;
+    font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 13px;
 }
-
-.watermark {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  color: #003d00;
-  opacity: 0.5;
-  letter-spacing: 1px;
-  z-index: 9999;
-  pointer-events: none;
+body.matrix-mode::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+    background: repeating-linear-gradient(0deg, rgba(0, 255, 65, .04) 0px, rgba(0, 255, 65, .04) 1px, transparent 1px, transparent 3px);
+    animation: scan 6s linear infinite;
 }
-
-body.matrix-mode .watermark {
-  color: #00ff41;
-  opacity: 0.3;
+@keyframes scan { from { transform: translateY(0) } to { transform: translateY(3px) } }
+body.matrix-mode .top-strip { background: #00ff41; box-shadow: 0 0 10px #00ff41, 0 0 20px rgba(0, 255, 65, .5); }
+body.matrix-mode .header { background: #000500; border-bottom: 1px solid #003d00; box-shadow: 0 0 30px rgba(0, 255, 65, .15); }
+body.matrix-mode .brand-name { color: #00ff41; text-shadow: 0 0 10px #00ff41, 0 0 3px #00ff41; letter-spacing: .5px; }
+body.matrix-mode .brand-sub { color: #00b030; }
+body.matrix-mode #brand-lowdata:hover { background: rgba(0, 255, 65, .15); color: #00ff41; }
+body.matrix-mode .env-badge { background: #001500; border-color: #003d00; color: #00b030; }
+body.matrix-mode .env-dot { background: #00ff41; box-shadow: 0 0 8px #00ff41, 0 0 0 3px rgba(0, 255, 65, .2); }
+body.matrix-mode .sec-badge { background: rgba(0, 255, 65, .1); border-color: rgba(0, 255, 65, .3); color: #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, .2); }
+body.matrix-mode .icon-btn { color: #00b030; }
+body.matrix-mode .icon-btn:hover { background: rgba(0, 255, 65, .08); color: #00ff41; }
+body.matrix-mode .user-chip { background: #001500; border-color: #003d00; }
+body.matrix-mode .user-chip:hover { background: rgba(0, 255, 65, .08); }
+body.matrix-mode .avatar { background: #00ff41; color: #000; text-shadow: none; }
+body.matrix-mode .user-name { color: #00ff41; }
+body.matrix-mode .user-role { color: #00b030; }
+body.matrix-mode .sidebar { background: #000500; border-right-color: #003d00; }
+body.matrix-mode .nav-group-title { color: #00b030; }
+body.matrix-mode .nav-item { color: #00b030; }
+body.matrix-mode .nav-item:hover { background: rgba(0, 255, 65, .08); color: #00ff41; }
+body.matrix-mode .nav-item.active { background: rgba(0, 255, 65, .12); color: #00ff41; box-shadow: inset 3px 0 0 #00ff41; text-shadow: 0 0 6px rgba(0, 255, 65, .6); }
+body.matrix-mode .card, body.matrix-mode .kpi, body.matrix-mode .module {
+    background: #000800; border-color: #003d00; box-shadow: var(--sombra);
 }
-
+body.matrix-mode .card-head { border-bottom-color: #003d00; }
+body.matrix-mode .page-header { border-bottom-color: #003d00; }
+body.matrix-mode .card-title, body.matrix-mode .kpi-value, body.matrix-mode .module-name, body.matrix-mode .page-title {
+    color: #00ff41; text-shadow: 0 0 6px rgba(0, 255, 65, .5);
+}
+body.matrix-mode .kpi-label, body.matrix-mode .card-sub, body.matrix-mode .page-sub, body.matrix-mode .module-desc, body.matrix-mode .breadcrumb {
+    color: #00b030;
+}
+body.matrix-mode .breadcrumb span { color: #00ff41; }
+body.matrix-mode .kpi-icon { background: rgba(0, 255, 65, .1); color: #00ff41; }
+body.matrix-mode .kpi-icon.green { background: rgba(0, 255, 65, .15); color: #00ff41; }
+body.matrix-mode .kpi-icon.red { background: rgba(255, 0, 80, .15); color: #ff0050; }
+body.matrix-mode .table th { background: #001500; color: #00cc33; border-bottom-color: #003d00; }
+body.matrix-mode .table td { color: #00e040; border-bottom-color: #002a00; }
+body.matrix-mode .table tr:hover td { background: rgba(0, 255, 65, .05); }
+body.matrix-mode .btn-primary { background: #00ff41; color: #000; box-shadow: 0 0 12px rgba(0, 255, 65, .5); font-weight: 700; text-shadow: none; }
+body.matrix-mode .btn-primary:hover { background: #00ff65; box-shadow: 0 0 24px rgba(0, 255, 65, .8); }
+body.matrix-mode .btn-secondary { background: #001500; color: #00ff41; border-color: #003d00; }
+body.matrix-mode .btn-secondary:hover { background: rgba(0, 255, 65, .1); }
+body.matrix-mode .btn-ghost { color: #00b030; }
+body.matrix-mode .btn-ghost:hover { background: rgba(0, 255, 65, .08); color: #00ff41; }
+body.matrix-mode .status.ok { background: rgba(0, 255, 65, .15); color: #00ff41; box-shadow: 0 0 6px rgba(0, 255, 65, .3); }
+body.matrix-mode .status.warn { background: rgba(136, 255, 0, .15); color: #88ff00; }
+body.matrix-mode .status.err { background: rgba(255, 0, 80, .15); color: #ff0050; }
+body.matrix-mode .status.info { background: rgba(0, 255, 65, .1); color: #00ff41; }
+body.matrix-mode .switch { background: #003a00; }
+body.matrix-mode .switch.on { background: #00ff41; box-shadow: 0 0 10px rgba(0, 255, 65, .6); }
+body.matrix-mode .switch::after { background: #00ff41; }
+body.matrix-mode .switch.on::after { background: #000; }
+body.matrix-mode .select { background: #001500; color: #00ff41; border-color: #003d00; }
+body.matrix-mode .trend.up { color: #00ff41; background: rgba(0, 255, 65, .15); }
+body.matrix-mode .trend.down { color: #ff0050; background: rgba(255, 0, 80, .15); }
+body.matrix-mode .card-title::before { content: "▸ "; color: #00ff41; opacity: .6; }
+body.matrix-mode #brand-lowdata { animation: glitch 4s infinite; }
+@keyframes glitch {
+    0%, 88%, 100% { text-shadow: 0 0 10px #00ff41, 0 0 3px #00ff41; }
+    90% { text-shadow: -2px 0 #ff0050, 2px 0 #00ffff, 0 0 10px #00ff41; }
+    92% { text-shadow: 2px 0 #ff0050, -2px 0 #00ffff, 0 0 10px #00ff41; }
+    94% { text-shadow: 0 0 10px #00ff41; }
+}
+.matrix-only { display: none!important; }
+body.matrix-mode .matrix-only { display: flex!important; }
+body.matrix-mode .nav-item.matrix-only { display: flex!important; }
+body.matrix-mode .watermark { color: rgba(0, 255, 65, .3); text-shadow: 0 0 5px rgba(0, 255, 65, .5); }
+body.matrix-mode .pool-yield { color: #00ff41; text-shadow: 0 0 6px rgba(0, 255, 65, .5); }
+body.matrix-mode .rating.A { background: rgba(0, 255, 65, .15); color: #00ff41; }
+body.matrix-mode .rating.B { background: rgba(136, 255, 0, .15); color: #88ff00; }
+body.matrix-mode .rating.C { background: rgba(255, 0, 80, .15); color: #ff0050; }
+body.matrix-mode .audit-badge.ok { background: rgba(0, 255, 65, .15); color: #00ff41; }
+body.matrix-mode .audit-badge.pending { background: rgba(136, 255, 0, .15); color: #88ff00; }
+body.matrix-mode .yield-tab.active { background: rgba(0, 255, 65, .12); border-color: #00ff41; color: #00ff41; box-shadow: 0 0 8px rgba(0, 255, 65, .3); }
+body.matrix-mode .progress-fill { background: #00ff41; }
+body.matrix-mode .withdraw-limit { background: rgba(136, 255, 0, .1); border-left-color: #88ff00; }
+body.matrix-mode .withdraw-limit-value { color: #88ff00; }
+body.matrix-mode .pix-restricted { background: rgba(255, 0, 80, .1); border-left-color: #ff0050; color: #ff0050; }
+body.matrix-mode .port-metric { background: #001500; border: 1px solid #003d00; }
+body.matrix-mode .port-metric-label { color: #00b030; }
+body.matrix-mode .port-metric-value { color: #00ff41; text-shadow: 0 0 6px rgba(0, 255, 65, .5); }
+body.matrix-mode .insight-card { background: #000800; border-color: #003d00; }
+body.matrix-mode .insight-title { color: #00ff41; }
+body.matrix-mode .insight-bar-head { color: #00b030; }
+body.matrix-mode .insight-bar-track { background: #001500; }
+body.matrix-mode .insight-bar-fill { background: #00ff41; }
+body.matrix-mode .insight-yield-row { color: #00e040; }
+body.matrix-mode .search-box input { background: #000800; color: #00ff41; border-color: #003d00; }
+body.matrix-mode .search-box input:focus { border-color: #00ff41; box-shadow: 0 0 0 3px rgba(0, 255, 65, .1); }
+body.matrix-mode .search-icon { color: #00b030; }
+body.matrix-mode .search-count { color: #00b030; }
+body.matrix-mode .modal-content { background: #000800; border: 1px solid #003d00; box-shadow: 0 0 40px rgba(0, 255, 65, .2); }
+body.matrix-mode .modal-title { color: #00ff41; text-shadow: 0 0 6px rgba(0, 255, 65, .5); }
+body.matrix-mode .modal-close { color: #00b030; }
+body.matrix-mode .modal-close:hover { background: rgba(0, 255, 65, .08); color: #00ff41; }
+body.matrix-mode .withdraw-field input { background: #000800; color: #00ff41; border-color: #003d00; }
+body.matrix-mode .toast { border-left-color: #00ff41; }
+body.matrix-mode .toast svg { color: #00ff41; }
 </style>
 </head>
 <body>
-<div class="watermark">laboratory of k by hackbrasil</div>
-<h1>SIMEA - Sistema em desenvolvimento</h1>
-<p>Versão completa em construção...</p>
-<script>
-// Função básica para alternar modo Matrix
-function toggleMatrix() {
-  document.body.classList.toggle('matrix-mode');
-}
-</script>
+<div class="top-strip"></div>
+
+<header class="header">
+    <div class="header-left">
+        <button class="menu-toggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+        <div class="brand">
+            <div class="brand-name">SIMEA</div>
+            <div class="brand-sub">Sistema Inteligente de Macroeconomia e <span id="brand-lowdata">Estabilidade Ambiental</span></div>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="env-badge">
+            <span class="env-dot"></span>
+            <span id="env-label">Ambiente de Simulacao</span>
+        </div>
+        <div class="sec-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span id="sec-label">Sessao Segura</span>
+        </div>
+        <button class="icon-btn" onclick="toggleMatrix()" title="Ativar Modo Matrix">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+        </button>
+        <div class="user-chip">
+            <div class="avatar">KC</div>
+            <div class="user-info">
+                <div class="user-name">Kaue Caires</div>
+                <div class="user-role">Administrador</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="nav-group">
+            <div class="nav-group-title">Navegacao</div>
+            <div class="nav-item active" onclick="showPage('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span class="nav-text">Dashboard</span>
+            </div>
+            <div class="nav-item" onclick="showPage('modules')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span class="nav-text">Modulos</span>
+            </div>
+            <div class="nav-item matrix-only" onclick="showPage('pool')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <span class="nav-text">Pool Soberano</span>
+            </div>
+            <div class="nav-item" onclick="showPage('port')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                <span class="nav-text">SIMEA-Port</span>
+            </div>
+            <div class="nav-item" onclick="showPage('settings')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span class="nav-text">Configuracoes</span>
+            </div>
+        </div>
+    </aside>
+    <main class="main">
+        <!-- Dashboard -->
+        <div id="page-dashboard" class="page active">
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">Inicio <span>Dashboard</span></div>
+                    <h1 class="page-title">Visao Geral do Sistema</h1>
+                    <p class="page-sub">Painel de controle central do SIMEA</p>
+                </div>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Volume Total</span><div class="kpi-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div></div><div class="kpi-value" id="dash-vol">R$ 0</div><div class="kpi-foot"><span class="trend up">+12.5%</span><span>vs mes anterior</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Operacoes</span><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div></div><div class="kpi-value" id="dash-ops">0</div><div class="kpi-foot"><span>Transacoes por segundo</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Lastro Ambiental</span><div class="kpi-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"></path><circle cx="12" cy="12" r="3"></circle></svg></div></div><div class="kpi-value" id="dash-lastro">R$ 0</div><div class="kpi-foot"><span class="trend up">+8.3%</span><span>Crescimento mensal</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Taxa Media</span><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div></div><div class="kpi-value" id="dash-taxa">0%</div><div class="kpi-foot"><span>Rendimento anual</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Timer</span><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div></div><div class="kpi-value" id="dash-timer">0</div><div class="kpi-foot"><span>Segundos online</span></div></div>
+            </div>
+            <div class="grid-2">
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Rendimento do Pool</h3><p class="card-sub">Evolucao dos ativos sob gestao</p></div></div><div class="card-body"><div class="chart-wrap"><svg id="main-chart" class="chart-svg" viewBox="0 0 800 200"><defs><linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1351B4" stop-opacity=".2"></stop><stop offset="100%" stop-color="#1351B4" stop-opacity="0"></stop></linearGradient></defs><path d="M 50 150 L 100 120 L 150 140 L 200 100 L 250 130 L 300 90 L 350 110 L 400 80 L 450 100 L 500 70 L 550 90 L 600 60 L 650 80 L 700 50 L 750 70" fill="none" stroke="#1351B4" stroke-width="2"></path><path d="M 50 150 L 100 120 L 150 140 L 200 100 L 250 130 L 300 90 L 350 110 L 400 80 L 450 100 L 500 70 L 550 90 L 600 60 L 650 80 L 700 50 L 750 70 L 750 200 L 50 200 Z" fill="url(#chartGrad)"></path></svg></div></div></div>
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Distribuicao por Segmento</h3><p class="card-sub">Alocacao dos recursos</p></div></div><div class="card-body"><div class="bm-section"><div class="bm-title">Top 5 Segmentos</div><div class="bm-canvas"><div class="bm-cell"><div class="bm-cell-title">Agro Sustentavel</div><ul><li>AgroVerde</li><li>BioToken</li><li>Terra Fertil</li></ul></div><div class="bm-cell"><div class="bm-cell-title">Biodiversidade</div><ul><li>Amazonia Tech</li><li>Floresta Viva</li><li>Verde Brasil</li></ul></div><div class="bm-cell"><div class="bm-cell-title">Energia Renovavel</div><ul><li>Solar BR</li><li>Eolica Norte</li><li>Hidro Clean</li></ul></div><div class="bm-cell"><div class="bm-cell-title">Captura de Carbono</div><ul><li>CarbonZero</li><li>Clima BR</li><li>Ar Puro</li></ul></div><div class="bm-cell"><div class="bm-cell-title">Logistica</div><ul><li>TransVerde</li><li>EcoLog</li><li>Rota Sustentavel</li></ul></div></div></div></div></div>
+            </div>
+            <div class="grid-3">
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Receita por Regiao</h3></div></div><div class="card-body"><div class="revenue-row"><div><div class="revenue-label">Norte</div><div class="revenue-sub">Amazonia e Para</div></div><div class="revenue-val">R$ 12,4 bi</div></div><div class="revenue-row"><div><div class="revenue-label">Nordeste</div><div class="revenue-sub">Energia Eolica</div></div><div class="revenue-val">R$ 8,9 bi</div></div><div class="revenue-row"><div><div class="revenue-label">Sudeste</div><div class="revenue-sub">Industria Verde</div></div><div class="revenue-val">R$ 15,2 bi</div></div></div></div>
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Status do Sistema</h3></div></div><div class="card-body"><div class="revenue-row"><div class="revenue-label">Auditoria B2G</div><div><span class="status ok">Ativo</span></div></div><div class="revenue-row"><div class="revenue-label">Validacao Orbital</div><div><span class="status ok">Online</span></div></div><div class="revenue-row"><div class="revenue-label">Sincronizacao INPE</div><div><span class="status ok">OK</span></div></div></div></div>
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Proximos Passos</h3></div></div><div class="card-body"><div class="revenue-row"><div class="revenue-label">Ativar Pool Soberano</div><div><span class="status info">Modo Matrix</span></div></div><div class="revenue-row"><div class="revenue-label">Integracao SIMEA-Port</div><div><span class="status ok">Concluido</span></div></div><div class="revenue-row"><div class="revenue-label">Sistema de Saque PIX</div><div><span class="status ok">Ativo</span></div></div></div></div>
+            </div>
+        </div>
+        <!-- Modules Page -->
+        <div id="page-modules" class="page">
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">Inicio <span>Modulos</span></div>
+                    <h1 class="page-title">Modulos do SIMEA</h1>
+                    <p class="page-sub">Componentes integrados do sistema</p>
+                </div>
+            </div>
+            <div class="module-grid">
+                <div class="module" onclick="showPage('pool'); toggleMatrix();">
+                    <div class="module-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    </div>
+                    <div class="module-name">Pool Soberano</div>
+                    <div class="module-desc">Fundo de investimento com empresas brasileiras em processo de revitalizacao economica e ambiental.</div>
+                    <div class="module-status"><span class="status ok">Disponivel no Modo Matrix</span></div>
+                </div>
+                <div class="module" onclick="showPage('port')">
+                    <div class="module-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                    <div class="module-name">SIMEA-Port</div>
+                    <div class="module-desc">Sistema de controle portuario inteligente com monitoramento ambiental e logistica integrada.</div>
+                    <div class="module-status"><span class="status ok">Ativo</span></div>
+                </div>
+                <div class="module">
+                    <div class="module-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <div class="module-name">Macroeconomia</div>
+                    <div class="module-desc">Analise de indicadores economicos e projecoes de crescimento com foco em sustentabilidade.</div>
+                    <div class="module-status"><span class="status ok">Ativo</span></div>
+                </div>
+                <div class="module">
+                    <div class="module-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </div>
+                    <div class="module-name">Monitoramento Ambiental</div>
+                    <div class="module-desc">Rastreamento em tempo real de metricas ambientais via satelite INPE.</div>
+                    <div class="module-status"><span class="status ok">Ativo</span></div>
+                </div>
+                <div class="module">
+                    <div class="module-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div class="module-name">Auditoria B2G</div>
+                    <div class="module-desc">Sistema de auditoria governamental para validacao de transacoes e conformidade.</div>
+                    <div class="module-status"><span class="status ok">Ativo</span></div>
+                </div>
+                <div class="module">
+                    <div class="module-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="module-name">Gestao de Usuarios</div>
+                    <div class="module-desc">Controle de acesso e permissões para auditores e administradores.</div>
+                    <div class="module-status"><span class="status ok">Ativo</span></div>
+                </div>
+            </div>
+        </div>
+        <!-- SIMEA-Port Page -->
+        <div id="page-port" class="page">
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">Inicio <span>SIMEA-Port</span></div>
+                    <h1 class="page-title">Controle Portuario Inteligente</h1>
+                    <p class="page-sub">Monitoramento de operacoes portuarias com foco em sustentabilidade</p>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="refreshPortData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Atualizar
+                </button>
+            </div>
+            <div class="kpi-grid">
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Portos Ativos</span><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div></div><div class="kpi-value" id="port-count">0</div><div class="kpi-foot"><span>Portos monitorados</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Carga Total</span><div class="kpi-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg></div></div><div class="kpi-value" id="port-carga">0</div><div class="kpi-foot"><span>Toneladas/mes</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Emissoes Evitadas</span><div class="kpi-icon green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"></path></svg></div></div><div class="kpi-value" id="port-emissao">0</div><div class="kpi-foot"><span class="trend up">-35%</span><span>vs ano passado</span></div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Eficiencia</span><div class="kpi-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div></div><div class="kpi-value" id="port-eficiencia">0%</div><div class="kpi-foot"><span>Taxa de ocupacao</span></div></div>
+            </div>
+            <div class="grid-2">
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Portos Monitorados</h3><p class="card-sub">Status em tempo real</p></div></div><div class="card-body"><div id="port-list"></div></div></div>
+                <div class="card"><div class="card-head"><div><h3 class="card-title">Metricas Ambientais</h3><p class="card-sub">Impacto das operacoes</p></div></div><div class="card-body"><div class="port-grid" id="port-metrics"></div></div></div>
+            </div>
+            <div class="card"><div class="card-head"><div><h3 class="card-title">Insights SIMEA-Port</h3><p class="card-sub">Analise de dados portuarios</p></div></div><div class="card-body"><div class="insights-grid" id="port-insights"></div></div></div>
+        </div>
+        <!-- Pool Soberano Page -->
+        <div id="page-pool" class="page">
+            <div class="pool-banner matrix-only">
+                <div class="pool-banner-left">
+                    <div class="pool-banner-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="pool-banner-title">Pool Soberano</div>
+                        <div class="pool-banner-sub">Fundo de Estabilizacao Economica e Ambiental</div>
+                    </div>
+                </div>
+                <div class="pool-banner-right">
+                    <div class="pool-stat"><div class="pool-stat-label">Empresas</div><div class="pool-stat-val" id="pool-company-count">0</div></div>
+                    <div class="pool-stat"><div class="pool-stat-label">Volume Total</div><div class="pool-stat-val" id="pool-total-vol">R$ 0</div></div>
+                    <div class="pool-stat"><div class="pool-stat-label">Yield Medio</div><div class="pool-stat-val" id="pool-avg-yield">0%</div></div>
+                </div>
+            </div>
+            <div class="card matrix-only">
+                <div class="card-head"><div><h3 class="card-title">Filtros e Busca</h3></div></div>
+                <div class="card-body">
+                    <div class="search-box">
+                        <span class="search-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </span>
+                        <input type="text" id="pool-search" placeholder="Buscar por nome, segmento, regiao ou ID...">
+                    </div>
+                    <div class="search-count" id="pool-search-count">0 empresas</div>
+                </div>
+            </div>
+            <div class="card matrix-only">
+                <div class="card-head"><div><h3 class="card-title">Empresas do Pool Soberano</h3><p class="card-sub">Clique em uma empresa para ver detalhes e historico de rendimentos</p></div></div>
+                <div class="card-body">
+                    <div class="pool-table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr><th>ID</th><th>Empresa</th><th>Segmento</th><th>Regiao</th><th>Saldo</th><th>Yield</th><th>Rating</th><th>Auditoria</th></tr>
+                            </thead>
+                            <tbody id="pool-companies-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-grid matrix-only">
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Total no Pool</span><div class="kpi-icon green"></div></div><div class="kpi-value" id="pool-total">R$ 0</div><div class="kpi-foot" id="pool-total-foot">0 empresas</div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Yield Medio</span><div class="kpi-icon green"></div></div><div class="kpi-value" id="pool-avg-yield-kpi">0%</div><div class="kpi-foot">Media ponderada do pool</div></div>
+                <div class="kpi"><div class="kpi-head"><span class="kpi-label">Volume Auditado</span><div class="kpi-icon green"></div></div><div class="kpi-value" id="pool-audited">R$ 0</div><div class="kpi-foot">Empresas com B2G-OK</div></div>
+            </div>
+            <div class="card matrix-only">
+                <div class="card-head"><h3 class="card-title">Feed de Operacoes</h3></div>
+                <div class="card-body"><div class="terminal-feed" id="insights-feed"></div></div>
+            </div>
+        </div>
+        <!-- Settings Page -->
+        <div id="page-settings" class="page">
+            <div class="page-header">
+                <div>
+                    <div class="breadcrumb">Inicio <span>Configuracoes</span></div>
+                    <h1 class="page-title">Configuracoes do Sistema</h1>
+                    <p class="page-sub">Personalize sua experiencia no SIMEA</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-head"><h3 class="card-title">Preferencias de Visualizacao</h3></div>
+                    <div class="card-body">
+                        <div class="settings-group">
+                            <div class="settings-title">Tema</div>
+                            <div class="setting-row">
+                                <div class="setting-info">
+                                    <div class="setting-label">Modo Matrix (LOWDATAESC Private)</div>
+                                    <div class="setting-desc">Ativa o tema cyberpunk com acesso ao Pool Soberano</div>
+                                </div>
+                                <div class="switch" id="matrix-switch" onclick="toggleMatrix()"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-head"><h3 class="card-title">Informacoes do Sistema</h3></div>
+                    <div class="card-body">
+                        <div class="settings-group">
+                            <div class="settings-title">Sobre</div>
+                            <div class="revenue-row"><div class="revenue-label">Versao</div><div class="revenue-val">1.0.0</div></div>
+                            <div class="revenue-row"><div class="revenue-label">Ambiente</div><div><span class="status ok" id="env-status">Simulacao</span></div></div>
+                            <div class="revenue-row"><div class="revenue-label">Licenca</div><div><span class="status info">B2G Compliant</span></div></div>
+                        </div>
+                        <div class="settings-group">
+                            <div class="settings-title">Contato</div>
+                            <div class="revenue-row"><div class="revenue-label">Suporte</div><div class="revenue-val">simea@hackbrasil.com</div></div>
+                            <div class="revenue-row"><div class="revenue-label">Desenvolvedor</div><div class="revenue-val">Kaue Caires</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Company Detail Modal -->
+    <div id="company-modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-company-name">Empresa</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="grid-2">
+                    <div>
+                        <h3 class="card-title" style="margin-bottom: 12px;">Informacoes Basicas</h3>
+                        <div class="revenue-row"><div class="revenue-label">ID</div><div class="revenue-val" id="modal-company-info" style="font-size: 13px;"></div></div>
+                        <div class="revenue-row"><div class="revenue-label">Saldo Atual</div><div class="revenue-val" id="modal-balance"></div></div>
+                        <div class="revenue-row"><div class="revenue-label">Yield Diario</div><div class="revenue-val" id="modal-yield"></div></div>
+                        <div class="revenue-row"><div class="revenue-label">Rendimentos Acumulados</div><div class="revenue-val" id="modal-earnings"></div></div>
+                    </div>
+                    <div>
+                        <h3 class="card-title" style="margin-bottom: 12px;">Compliance</h3>
+                        <div class="revenue-row"><div class="revenue-label">Auditoria B2G</div><div id="modal-audit"></div></div>
+                        <div class="revenue-row"><div class="revenue-label">Rating</div><div><span class="rating A" id="modal-rating">A+</span></div></div>
+                        <div class="revenue-row"><div class="revenue-label">Contribuicao Inicial</div><div class="revenue-val" id="modal-contribution"></div></div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--borda);">
+                    <h3 class="card-title" style="margin-bottom: 16px;">Historico de Rendimentos</h3>
+                    <div class="yield-tabs">
+                        <div class="yield-tab active" data-period="1h" onclick="switchYieldPeriod('1h')">1h</div>
+                        <div class="yield-tab" data-period="24h" onclick="switchYieldPeriod('24h')">24h</div>
+                        <div class="yield-tab" data-period="7d" onclick="switchYieldPeriod('7d')">7d</div>
+                        <div class="yield-tab" data-period="30d" onclick="switchYieldPeriod('30d')">30d</div>
+                        <div class="yield-tab" data-period="total" onclick="switchYieldPeriod('total')">Total</div>
+                    </div>
+                    <div class="grid-3" style="margin-top: 16px;">
+                        <div class="card"><div class="card-body"><div class="revenue-label">Total Rendido</div><div class="revenue-val" id="yh-total-rendered" style="font-size: 20px; margin-top: 8px;"></div><div class="revenue-sub" id="yh-total-rendered-pct"></div></div></div>
+                        <div class="card"><div class="card-body"><div class="revenue-label">Total Sacado</div><div class="revenue-val" id="yh-total-withdrawn" style="font-size: 20px; margin-top: 8px;"></div><div class="revenue-sub" id="yh-withdrawn-count"></div></div></div>
+                        <div class="card"><div class="card-body"><div class="revenue-label">Disponivel para Saque</div><div class="revenue-val" id="yh-available" style="font-size: 20px; margin-top: 8px;"></div><div class="revenue-sub" id="yh-available-pct"></div></div></div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <div class="revenue-row">
+                            <div class="revenue-label">Percentual Sacado</div>
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div class="progress-bar" style="flex: 1;"><div class="progress-fill" id="withdraw-pct-fill-sacado" style="width: 0%;"></div></div>
+                                    <span id="withdraw-pct-label" style="font-size: 12px; font-weight: 600; min-width: 80px;"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="font-size: 12px; color: var(--cinza-tip); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .6px; font-weight: 600;">Grafico de Rendimentos</h4>
+                        <div class="chart-wrap" style="height: 120px;"><svg id="yield-chart" class="chart-svg" viewBox="0 0 400 100"></svg></div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--borda);">
+                    <h3 class="card-title" style="margin-bottom: 16px;">Saque via PIX</h3>
+                    <div class="pix-restricted" id="pix-restricted">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Apenas usuarios autorizados (Kaue Caires, Auditor B2G) podem realizar saques</span>
+                    </div>
+                    <div class="withdraw-section">
+                        <div class="withdraw-grid">
+                            <div class="withdraw-field"><label>Chave PIX (CNPJ)</label><input type="text" id="pix-key" placeholder="00.000.000/0001-00" disabled></div>
+                            <div class="withdraw-field"><label>Valor para Saque</label><input type="text" id="pix-amount" placeholder="R$ 0,00" oninput="formatPixInput(this)" disabled></div>
+                        </div>
+                        <div class="withdraw-limit"><label>Limite Diario</label><div class="withdraw-limit-value">Apenas 20% do rendimento diario pode ser sacado sem auditoria B2G</div></div>
+                        <button class="btn btn-primary" id="btn-pix" onclick="handlePixWithdraw()" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            Solicitar Saque PIX
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span id="toast-msg"></span></div>
+    <!-- Watermark -->
+    <div class="watermark">laboratory of k by hackbrasil</div>
+    <script>
+        // ========================================================================
+        // SIMEA v1.0 - Sistema Inteligente de Macroeconomia e Estabilidade Ambiental
+        // JavaScript Principal
+        // ========================================================================
+
+        // ========================================================================
+        // CONFIGURACOES E DADOS GLOBAIS
+        // ========================================================================
+
+        // Segmentos do Pool Soberano
+        const POOL_SEGMENTS = ['Agro Sustentavel', 'Biodiversidade', 'Energia Renovavel', 'Logistica', 'Captura de Carbono', 'Conservacao', 'Saneamento', 'Mineração Verde', 'Energia Solar', 'Varejo Sustentavel', 'Agrofloresta', 'Reflorestamento', 'Reciclagem', 'Bioenergia', 'Aquicultura', 'Turismo Ecológico', 'Construcao Verde', 'Mobilidade Eletrica', 'Saude Ambiental', 'Tecnologia Limpa'];
+
+        // Regioes
+        const REGIONS = ['Norte', 'Nordeste', 'Centro-Oeste', 'Sudeste', 'Sul'];
+
+        // Usuarios autorizados para saque
+        const AUTHORIZED_USERS = ['Kaue Caires', 'Auditor B2G', 'Admin SIMEA'];
+
+        // ========================================================================
+        // GERACAO DO POOL DE EMPRESAS (500+ empresas)
+        // ========================================================================
+
+        function generatePoolCompanies() {
+            const originals = [
+                { name: 'AgroVerde S.A.', segment: 'Agro Sustentavel', contribution: 48200000000, baseYield: 12.4, audit: 'B2G-OK', rating: 'A+', region: 'Sudeste' },
+                { name: 'BioToken Amazonia', segment: 'Biodiversidade', contribution: 32400000000, baseYield: 15.8, audit: 'B2G-OK', rating: 'A', region: 'Norte' },
+                { name: 'CarbonCapture BR', segment: 'Captura de Carbono', contribution: 61200000000, baseYield: 18.3, audit: 'B2G-OK', rating: 'A+', region: 'Nordeste' },
+                { name: 'EcoMineração Ltda', segment: 'Mineração Verde', contribution: 28700000000, baseYield: 13.6, audit: 'B2G-OK', rating: 'A', region: 'Centro-Oeste' },
+                { name: 'SolarNordeste S.A.', segment: 'Energia Solar', contribution: 37500000000, baseYield: 10.8, audit: 'B2G-OK', rating: 'A', region: 'Nordeste' },
+                { name: 'HidroClean Energia', segment: 'Energia Renovavel', contribution: 55000000000, baseYield: 14.2, audit: 'B2G-OK', rating: 'A+', region: 'Sul' },
+                { name: 'TransVerde Logistica', segment: 'Logistica', contribution: 42000000000, baseYield: 11.5, audit: 'B2G-OK', rating: 'A', region: 'Sudeste' },
+                { name: 'ArPuro Tecnologia', segment: 'Captura de Carbono', contribution: 39000000000, baseYield: 16.7, audit: 'B2G-PEND', rating: 'B+', region: 'Norte' },
+                { name: 'Floresta Viva Corp', segment: 'Biodiversidade', contribution: 28000000000, baseYield: 13.9, audit: 'B2G-OK', rating: 'A', region: 'Amazonas' },
+                { name: 'Recicla Brasil', segment: 'Reciclagem', contribution: 18000000000, baseYield: 9.8, audit: 'B2G-OK', rating: 'B+', region: 'Sudeste' }
+            ];
+
+            const prefixes = ['Agro', 'Bio', 'Eco', 'Terra', 'Verde', 'Solar', 'Hydro', 'Geo', 'Neo', 'Urbano', 'Rural', 'Global', 'Nativa', 'Smart', 'Alpha', 'Delta', 'Sigma', 'Omega', 'Prime', 'Nova', 'Pura', 'Vital', 'Forte', 'Luz', 'Vento', 'Agua', 'Fogo', 'Mata', 'Flor', 'Semente', 'Aurora', 'Raiz', 'Folha', 'Trilha', 'Serra', 'Vale', 'Planalto', 'Costeira', 'Fluvial', 'Aerea', 'Oceânica', 'Sustentavel', 'Ambiental', 'Renovavel', 'Limpa', 'Verde', 'Azul', 'Amarela'];
+            const suffixes = ['Verde S.A.', 'Tech', 'Farms', 'Brasil', 'Sustainability', 'Corp', 'Group', 'Holdings', 'Solutions', 'Ltda', 'Participacoes', 'Energia', 'Capital', 'Agro', 'Invest', 'Fund', 'Partners', 'Ventures', 'Systems', 'Logistica', 'Consorcio', 'Alianca', 'Rede', 'Instituto', 'Fundacao', 'Coop', 'Servicos', 'Industria', 'Comercial', 'Distribuidora'];
+            const ratingPool = ['A+', 'A+', 'A', 'A', 'A-', 'B+', 'B+', 'B', 'B-', 'C+'];
+
+            const usedIds = new Set();
+            const usedNames = new Set();
+            const result = [];
+
+            const nextId = () => {
+                let id;
+                do { id = '#' + Math.floor(100000 + Math.random() * 900000); } while (usedIds.has(id));
+                usedIds.add(id);
+                return id;
+            };
+
+            // Adicionar empresas originais
+            originals.forEach(o => {
+                result.push({
+                    id: nextId(),
+                    ...o,
+                    currentBalance: o.contribution,
+                    earnings: 0,
+                    totalWithdrawn: 0,
+                    withdrawHistory: [],
+                    yieldHistory: []
+                });
+                usedNames.add(o.name);
+            });
+
+            // Gerar empresas adicionais ate atingir 500+
+            const TARGET = 500;
+            let attempts = 0;
+            while (result.length < TARGET && attempts < 10000) {
+                attempts++;
+                const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+                const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+                const seg = POOL_SEGMENTS[Math.floor(Math.random() * POOL_SEGMENTS.length)];
+                const name = `${p} ${s}`;
+                if (usedNames.has(name)) continue;
+                usedNames.add(name);
+
+                const contribution = Math.floor(5000000000 + Math.random() * 85000000000);
+                const baseYield = parseFloat((5 + Math.random() * 14).toFixed(1));
+                const audit = Math.random() > 0.25 ? 'B2G-OK' : 'B2G-PEND';
+                const rating = ratingPool[Math.floor(Math.random() * ratingPool.length)];
+                const region = REGIONS[Math.floor(Math.random() * REGIONS.length)];
+
+                // Simular empresas em falencia (20% do caixa aportado no fundo soberano)
+                const isFalencia = Math.random() > 0.85;
+                const falenciaContribution = isFalencia ? contribution * 0.2 : 0;
+
+                result.push({
+                    id: nextId(),
+                    name,
+                    segment: seg,
+                    contribution,
+                    baseYield,
+                    audit,
+                    rating,
+                    region,
+                    currentBalance: contribution + (isFalencia ? falenciaContribution : 0),
+                    earnings: 0,
+                    totalWithdrawn: 0,
+                    withdrawHistory: [],
+                    yieldHistory: [],
+                    isFalencia,
+                    falenciaContribution
+                });
+            }
+
+            // Embaralhar
+            for (let i = result.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [result[i], result[j]] = [result[j], result[i]];
+            }
+
+            return result;
+        }
+
+        // Gerar empresas do pool
+        const POOL_COMPANIES = generatePoolCompanies();
+
+        // Estado do Pool
+        const POOL_STATE = {
+            companies: POOL_COMPANIES.map(c => ({
+                ...c,
+                yieldPct: c.baseYield,
+                lastYield: c.baseYield
+            })),
+            wallets: [],
+            sessionWallets: 0,
+            selectedSegments: new Set(),
+            walletSeq: 1000,
+            tickCount: 0,
+            searchQuery: ''
+        };
+
+        // Dados do SIMEA-Port
+        const PORT_DATA = {
+            ports: [
+                { name: 'Porto de Santos', region: 'Sudeste', carga: 125000000, eficiencia: 85, emissao: -150000 },
+                { name: 'Porto do Rio de Janeiro', region: 'Sudeste', carga: 98000000, eficiencia: 78, emissao: -120000 },
+                { name: 'Porto de Paranagua', region: 'Sul', carga: 85000000, eficiencia: 82, emissao: -100000 },
+                { name: 'Porto de Itaqui', region: 'Nordeste', carga: 62000000, eficiencia: 75, emissao: -80000 },
+                { name: 'Porto de Belém', region: 'Norte', carga: 48000000, eficiencia: 70, emissao: -60000 }
+            ],
+            totalCarga: 0,
+            totalEmissao: 0,
+            avgEficiencia: 0
+        };
+
+        // ========================================================================
+        // FUNCOES DE FORMATACAO
+        // ========================================================================
+
+        function fmtScale(n) {
+            if (n >= 1e12) return 'R$ ' + (n / 1e12).toFixed(4).replace('.', ',') + ' tri';
+            if (n >= 1e9) return 'R$ ' + (n / 1e9).toFixed(4).replace('.', ',') + ' bi';
+            if (n >= 1e6) return 'R$ ' + (n / 1e6).toFixed(2).replace('.', ',') + ' mi';
+            if (n >= 1e3) return 'R$ ' + (n / 1e3).toFixed(2).replace('.', ',') + ' mil';
+            return 'R$ ' + n.toFixed(2).replace('.', ',');
+        }
+
+        function fmtPct(n) {
+            return n.toFixed(2).replace('.', ',') + '%';
+        }
+
+        function fmtNumber(n) {
+            return n.toLocaleString('pt-BR');
+        }
+
+        // ========================================================================
+        // FUNCOES DE NAVEGACAO
+        // ========================================================================
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.querySelector('.nav-item[onclick*="' + pageId + '"]').classList.add('active');
+
+            // Atualizar dados da pagina
+            if (pageId === 'pool') {
+                renderCompaniesTable();
+                updatePoolKPIs();
+                renderInsights();
+            } else if (pageId === 'port') {
+                renderPortData();
+            }
+        }
+
+        function toggleMatrix() {
+            const isMatrix = document.body.classList.toggle('matrix-mode');
+            document.getElementById('env-label').textContent = isMatrix ? 'LOWDATAESC Private' : 'Ambiente de Simulacao';
+            document.getElementById('sec-label').textContent = isMatrix ? 'Pool Sovereign' : 'Sessao Segura';
+            document.querySelectorAll('.matrix-only').forEach(el => {
+                el.style.display = isMatrix ? 'flex' : 'none';
+            });
+            if (!isMatrix) {
+                const poolPage = document.getElementById('page-pool');
+                if (poolPage.classList.contains('active')) showPage('dashboard');
+            }
+            try { localStorage.setItem('simea_matrix', isMatrix ? '1' : '0'); } catch (e) {}
+            showToast(isMatrix ? '▸ LOWDATAESC ativado · Pool Soberano liberado' : '▸ Retornando ao ambiente SIMEA padrao');
+        }
+
+        function restoreMatrix() {
+            try {
+                const wasOn = localStorage.getItem('simea_matrix') === '1';
+                if (wasOn) {
+                    document.body.classList.add('matrix-mode');
+                    document.querySelectorAll('.matrix-only').forEach(el => { el.style.display = 'flex'; });
+                    document.getElementById('env-label').textContent = 'LOWDATAESC Private';
+                    document.getElementById('sec-label').textContent = 'Pool Sovereign';
+                }
+            } catch (e) {}
+        }
+
+        // ========================================================================
+        // FUNCOES DO POOL SOBERANO
+        // ========================================================================
+
+        function filterCompanies(query) {
+            if (!query) return POOL_STATE.companies;
+            const q = query.toLowerCase().trim();
+            if (!q) return POOL_STATE.companies;
+            return POOL_STATE.companies.filter(c =>
+                c.name.toLowerCase().includes(q) ||
+                c.segment.toLowerCase().includes(q) ||
+                c.id.toLowerCase().includes(q) ||
+                c.rating.toLowerCase().includes(q) ||
+                c.region.toLowerCase().includes(q)
+            );
+        }
+
+        function renderCompaniesTable() {
+            const body = document.getElementById('pool-companies-body');
+            if (!body) return;
+
+            body.innerHTML = '';
+            const query = POOL_STATE.searchQuery || '';
+            const visible = filterCompanies(query);
+            const countEl = document.getElementById('pool-search-count');
+            if (countEl) {
+                countEl.textContent = query ? `${visible.length} / ${POOL_STATE.companies.length}` : `${POOL_STATE.companies.length} empresas`;
+                countEl.style.color = visible.length === 0 ? '#ff0050' : '#00ff41';
+            }
+
+            if (visible.length === 0) {
+                body.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#00b030;font-style:italic">Nenhuma empresa corresponde a "${query}"</td></tr>`;
+                return;
+            }
+
+            const frag = document.createDocumentFragment();
+            visible.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.onclick = () => openCompanyDetail(c.id);
+                const auditBadge = c.audit === 'B2G-OK' ? `<span class="audit-badge ok">B2G-OK</span>` : `<span class="audit-badge pending">B2G-PEND</span>`;
+                const ratingClass = c.rating.startsWith('A') ? 'A' : c.rating.startsWith('B') ? 'B' : 'C';
+                const falenciaBadge = c.isFalencia ? `<span class="status warn" style="margin-left:4px;">Falencia</span>` : '';
+
+                tr.innerHTML = `
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">${c.id}</td>
+                    <td style="font-weight:600">${c.name}${falenciaBadge}</td>
+                    <td><span style="font-size:11px;color:var(--cinza-tip)">${c.segment} · ${c.region}</span></td>
+                    <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${fmtScale(c.currentBalance)}</td>
+                    <td><span class="pool-yield" data-cid="${c.id}">${fmtPct(c.yieldPct)}</span></td>
+                    <td><span class="rating ${ratingClass}">${c.rating}</span></td>
+                    <td>${auditBadge}</td>
+                `;
+                frag.appendChild(tr);
+            });
+            body.appendChild(frag);
+        }
+
+        function updatePoolKPIs() {
+            const totalPooled = POOL_STATE.companies.reduce((a, c) => a + c.currentBalance, 0);
+            const avgYield = POOL_STATE.companies.reduce((a, c) => a + c.yieldPct, 0) / POOL_STATE.companies.length;
+            const auditedVolume = POOL_STATE.companies.filter(c => c.audit === 'B2G-OK').reduce((a, c) => a + c.currentBalance, 0);
+            const totalVolume = POOL_STATE.companies.reduce((a, c) => a + c.currentBalance, 0);
+            const auditedPct = (auditedVolume / totalVolume * 100).toFixed(1);
+            const falenciaVolume = POOL_STATE.companies.filter(c => c.isFalencia).reduce((a, c) => a + c.falenciaContribution, 0);
+
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = val;
+            };
+
+            setTxt('pool-company-count', POOL_STATE.companies.length);
+            setTxt('pool-total-vol', fmtScale(totalPooled));
+            setTxt('pool-avg-yield', fmtPct(avgYield));
+            setTxt('pool-total', fmtScale(totalPooled));
+            setTxt('pool-total-foot', `${POOL_STATE.companies.length} empresas · ${POOL_SEGMENTS.length} segmentos`);
+            setTxt('pool-avg-yield-kpi', fmtPct(avgYield));
+            setTxt('pool-audited', fmtScale(auditedVolume) + ' (' + auditedPct + '%)');
+
+            // Atualizar banner
+            if (document.body.classList.contains('matrix-mode')) {
+                document.getElementById('pool-company-count').textContent = POOL_STATE.companies.length;
+                document.getElementById('pool-total-vol').textContent = fmtScale(totalPooled);
+                document.getElementById('pool-avg-yield').textContent = fmtPct(avgYield);
+            }
+        }
+
+        // ========================================================================
+        // FUNCOES DE INSIGHTS
+        // ========================================================================
+
+        function renderInsights() {
+            if (!document.body.classList.contains('matrix-mode')) return;
+
+            const totalVol = POOL_STATE.companies.reduce((a, c) => a + c.currentBalance, 0);
+
+            // Segmentos
+            const segMap = {};
+            POOL_STATE.companies.forEach(c => {
+                segMap[c.segment] = (segMap[c.segment] || 0) + c.currentBalance;
+            });
+            const topSegs = Object.entries(segMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const segContainer = document.getElementById('insights-segments');
+            if (segContainer) {
+                segContainer.innerHTML = topSegs.map(([seg, val]) => {
+                    const pct = ((val / totalVol) * 100).toFixed(1);
+                    return `<div class="insight-bar-row"><div class="insight-bar-head"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px">${seg}</span><span>${pct}%</span></div><div class="insight-bar-track"><div class="insight-bar-fill" style="width:${pct}%"></div></div></div>`;
+                }).join('');
+            }
+
+            // Top Yields
+            const topYields = [...POOL_STATE.companies].sort((a, b) => b.yieldPct - a.yieldPct).slice(0, 5);
+            const yieldContainer = document.getElementById('insights-yields');
+            if (yieldContainer) {
+                yieldContainer.innerHTML = topYields.map(c => `
+                    <div class="insight-yield-row">
+                        <div style="min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.name}">${c.name}</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#00ff41;margin-left:8px">${fmtPct(c.yieldPct)}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Ratings
+            const ratingGroups = { A: 0, B: 0, C: 0 };
+            POOL_STATE.companies.forEach(c => {
+                if (c.rating.startsWith('A')) ratingGroups.A++;
+                else if (c.rating.startsWith('B')) ratingGroups.B++;
+                else ratingGroups.C++;
+            });
+            const totalR = POOL_STATE.companies.length;
+            const pA = (ratingGroups.A / totalR) * 100;
+            const pB = (ratingGroups.B / totalR) * 100;
+            const pC = (ratingGroups.C / totalR) * 100;
+            const ratingContainer = document.getElementById('insights-ratings');
+            if (ratingContainer) {
+                const healthScore = Math.round(((ratingGroups.A * 1.0 + ratingGroups.B * 0.6 + ratingGroups.C * 0.2) / totalR) * 100);
+                ratingContainer.innerHTML = `
+                    <div class="insight-rating-bar"><div style="width:${pA}%;background:#00ff41"></div><div style="width:${pB}%;background:#88ff00"></div><div style="width:${pC}%;background:#ff0050"></div></div>
+                    <div class="insight-rating-legend" style="display:flex;gap:12px;font-size:11px;margin-top:8px">
+                        <span style="color:#00ff41">■ A (${ratingGroups.A})</span>
+                        <span style="color:#88ff00">■ B (${ratingGroups.B})</span>
+                        <span style="color:#ff0050">■ C (${ratingGroups.C})</span>
+                    </div>
+                    <div style="margin-top:16px;padding:10px;background:#001500;border:1px solid #003d00;border-radius:6px">
+                        <div style="font-size:10px;color:#00b030;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Health Score</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#00ff41">${healthScore}<span style="font-size:12px;color:#00b030">/100</span></div>
+                    </div>
+                `;
+            }
+
+            // Regioes
+            const regMap = {};
+            POOL_STATE.companies.forEach(c => {
+                regMap[c.region] = (regMap[c.region] || 0) + c.currentBalance;
+            });
+            const regContainer = document.getElementById('insights-regions');
+            if (regContainer) {
+                regContainer.innerHTML = REGIONS.map(reg => {
+                    const val = regMap[reg] || 0;
+                    const pct = ((val / totalVol) * 100).toFixed(1);
+                    return `<div class="insight-bar-row"><div class="insight-bar-head"><span>${reg}</span><span>${pct}%</span></div><div class="insight-bar-track"><div class="insight-bar-fill" style="width:${pct}%"></div></div></div>`;
+                }).join('');
+            }
+
+            // Auditoria
+            const okVol = POOL_STATE.companies.filter(c => c.audit === 'B2G-OK').reduce((a, c) => a + c.currentBalance, 0);
+            const pendVol = POOL_STATE.companies.filter(c => c.audit === 'B2G-PEND').reduce((a, c) => a + c.currentBalance, 0);
+            const auditContainer = document.getElementById('insights-audit');
+            if (auditContainer) {
+                const okPct = ((okVol / totalVol) * 100).toFixed(1);
+                const pendPct = ((pendVol / totalVol) * 100).toFixed(1);
+                auditContainer.innerHTML = `
+                    <div class="insight-bar-row"><div class="insight-bar-head"><span style="color:#00ff41">B2G-OK</span><span>${okPct}%</span></div><div class="insight-bar-track"><div class="insight-bar-fill" style="width:${okPct}%;background:#00ff41"></div></div></div>
+                    <div class="insight-bar-row" style="margin-top:16px"><div class="insight-bar-head"><span style="color:#88ff00">B2G-PENDENTE</span><span>${pendPct}%</span></div><div class="insight-bar-track"><div class="insight-bar-fill" style="width:${pendPct}%;background:#88ff00"></div></div></div>
+                `;
+            }
+
+            // Empresas em falencia
+            const falenciaCount = POOL_STATE.companies.filter(c => c.isFalencia).length;
+            const falenciaVol = POOL_STATE.companies.filter(c => c.isFalencia).reduce((a, c) => a + c.falenciaContribution, 0);
+            console.log(`Empresas em falência: ${falenciaCount}, Volume aportado: ${fmtScale(falenciaVol)}`);
+        }
+
+        // ========================================================================
+        // FUNCOES DE HISTORICO DE RENDIMENTOS
+        // ========================================================================
+
+        window.currentYieldPeriod = '1h';
+
+        function getPeriodMs(period) {
+            switch (period) {
+                case '1h': return 60 * 60 * 1000;
+                case '24h': return 24 * 60 * 60 * 1000;
+                case '7d': return 7 * 24 * 60 * 60 * 1000;
+                case '30d': return 30 * 24 * 60 * 60 * 1000;
+                case 'total': return Infinity;
+                default: return 60 * 60 * 1000;
+            }
+        }
+
+        function computeYieldStats(company, period) {
+            const now = Date.now();
+            const periodMs = getPeriodMs(period);
+            const cutoff = period === 'total' ? 0 : now - periodMs;
+            const yieldHistory = company.yieldHistory || [];
+            const withdrawHistory = company.withdrawHistory || [];
+            const yieldsInRange = yieldHistory.filter(y => y.t >= cutoff);
+            const withdrawsInRange = withdrawHistory.filter(w => w.t >= cutoff);
+            const totalRendered = yieldsInRange.reduce((a, y) => a + y.v, 0);
+            const totalWithdrawn = withdrawsInRange.reduce((a, w) => a + w.v, 0);
+            const available = Math.max(0, totalRendered - totalWithdrawn);
+            const withdrawPct = totalRendered > 0 ? (totalWithdrawn / totalRendered) * 100 : 0;
+            const availablePct = totalRendered > 0 ? (available / totalRendered) * 100 : 100;
+            const pctOverInitial = company.contribution > 0 ? (totalRendered / company.contribution) * 100 : 0;
+            return { totalRendered, totalWithdrawn, available, withdrawPct, availablePct, pctOverInitial, yieldsInRange, withdrawsInRange };
+        }
+
+        function switchYieldPeriod(period) {
+            window.currentYieldPeriod = period;
+            document.querySelectorAll('.yield-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.period === period);
+            });
+            if (window.activeCompanyId) {
+                const company = POOL_STATE.companies.find(c => c.id === window.activeCompanyId);
+                if (company) renderYieldHistory(company);
+            }
+        }
+
+        function renderYieldHistory(company) {
+            const stats = computeYieldStats(company, window.currentYieldPeriod);
+            document.getElementById('yh-total-rendered').textContent = fmtScale(stats.totalRendered);
+            document.getElementById('yh-total-rendered-pct').textContent = fmtPct(stats.pctOverInitial) + ' sobre o aporte';
+            document.getElementById('yh-total-withdrawn').textContent = fmtScale(stats.totalWithdrawn);
+            document.getElementById('yh-withdrawn-count').textContent = stats.withdrawsInRange.length + ' operacoes';
+            document.getElementById('yh-withdraw-pct').textContent = fmtPct(stats.withdrawPct);
+            document.getElementById('yh-withdraw-pct-sub').textContent = 'do total rendido foi resgatado';
+            document.getElementById('yh-available').textContent = fmtScale(stats.available);
+            document.getElementById('yh-available-pct').textContent = fmtPct(stats.availablePct) + ' do rendimento retido';
+            document.getElementById('withdraw-pct-label').textContent = fmtPct(stats.withdrawPct) + ' sacado';
+            const fillSacado = document.getElementById('withdraw-pct-fill-sacado');
+            fillSacado.style.width = Math.min(100, stats.withdrawPct) + '%';
+            renderYieldChart(company, stats);
+        }
+
+        function renderYieldChart(company, stats) {
+            const svg = document.getElementById('yield-chart');
+            if (!svg) return;
+            const yields = stats.yieldsInRange;
+            const withdraws = stats.withdrawsInRange;
+            const W = 400, H = 100;
+            svg.innerHTML = '';
+
+            if (yields.length < 2 && withdraws.length === 0) {
+                const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                txt.setAttribute('x', W / 2);
+                txt.setAttribute('y', H / 2);
+                txt.setAttribute('text-anchor', 'middle');
+                txt.setAttribute('fill', '#00b030');
+                txt.setAttribute('font-size', '10');
+                txt.setAttribute('font-family', 'JetBrains Mono, monospace');
+                txt.textContent = 'Aguardando dados de rendimento...';
+                svg.appendChild(txt);
+                return;
+            }
+
+            const now = Date.now();
+            const periodMs = getPeriodMs(window.currentYieldPeriod);
+            const startT = window.currentYieldPeriod === 'total' ? (yields.length ? yields[0].t : now - 3600000) : now - periodMs;
+            const endT = now;
+            const allYieldVals = yields.map(y => y.v);
+            const maxV = Math.max(...allYieldVals, 1);
+            const xScale = (t) => ((t - startT) / Math.max(1, endT - startT)) * (W - 20) + 10;
+            const yScale = (v) => H - 10 - (v / maxV) * (H - 20);
+
+            let pathD = '';
+            let areaD = '';
+            if (yields.length > 0) {
+                const pts = yields.map(y => ({ x: xScale(y.t), y: yScale(y.v) }));
+                pathD = 'M ' + pts.map(p => p.x + ' ' + p.y).join(' L ');
+                areaD = pathD + ` L ${pts[pts.length-1].x} ${H-10} L ${pts[0].x} ${H-10} Z`;
+            }
+
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            grad.setAttribute('id', 'yieldGrad');
+            grad.setAttribute('x1', '0');
+            grad.setAttribute('y1', '0');
+            grad.setAttribute('x2', '0');
+            grad.setAttribute('y2', '1');
+            const s1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            s1.setAttribute('offset', '0%');
+            s1.setAttribute('stop-color', '#00ff41');
+            s1.setAttribute('stop-opacity', '.4');
+            const s2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            s2.setAttribute('offset', '100%');
+            s2.setAttribute('stop-color', '#00ff41');
+            s2.setAttribute('stop-opacity', '0');
+            grad.appendChild(s1);
+            grad.appendChild(s2);
+            defs.appendChild(grad);
+            svg.appendChild(defs);
+
+            if (areaD) {
+                const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                area.setAttribute('d', areaD);
+                area.setAttribute('fill', 'url(#yieldGrad)');
+                svg.appendChild(area);
+            }
+            if (pathD) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                line.setAttribute('d', pathD);
+                line.setAttribute('fill', 'none');
+                line.setAttribute('stroke', '#00ff41');
+                line.setAttribute('stroke-width', '1.5');
+                line.setAttribute('filter', 'drop-shadow(0 0 3px rgba(0,255,65,0.6))');
+                svg.appendChild(line);
+            }
+
+            withdraws.forEach(w => {
+                const x = xScale(w.t);
+                const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                ln.setAttribute('x1', x);
+                ln.setAttribute('y1', 5);
+                ln.setAttribute('x2', x);
+                ln.setAttribute('y2', H - 10);
+                ln.setAttribute('stroke', '#ff0050');
+                ln.setAttribute('stroke-width', '1');
+                ln.setAttribute('stroke-dasharray', '2,2');
+                ln.setAttribute('opacity', '0.7');
+                svg.appendChild(ln);
+                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                dot.setAttribute('cx', x);
+                dot.setAttribute('cy', H - 10);
+                dot.setAttribute('r', '2');
+                dot.setAttribute('fill', '#ff0050');
+                svg.appendChild(dot);
+            });
+        }
+
+        // ========================================================================
+        // MODAL DE DETALHES DA EMPRESA
+        // ========================================================================
+
+        window.activeCompanyId = null;
+
+        function openCompanyDetail(id) {
+            const company = POOL_STATE.companies.find(c => c.id === id);
+            if (!company) return;
+            window.activeCompanyId = id;
+            window.currentYieldPeriod = '1h';
+            document.getElementById('modal-company-name').textContent = company.name;
+            document.getElementById('modal-company-info').textContent = `${company.id} · ${company.segment} · ${company.region}`;
+            document.getElementById('modal-balance').innerHTML = fmtScale(company.currentBalance);
+            document.getElementById('modal-yield').textContent = fmtPct(company.yieldPct);
+            document.getElementById('modal-earnings').innerHTML = fmtScale(company.earnings);
+            document.getElementById('modal-contribution').innerHTML = fmtScale(company.contribution);
+            const auditHtml = company.audit === 'B2G-OK' ?
+                `<span class="audit-badge ok">B2G-OK</span>` :
+                `<span class="audit-badge pending">B2G-PEND</span>`;
+            document.getElementById('modal-audit').innerHTML = auditHtml;
+            const ratingClass = company.rating.startsWith('A') ? 'A' : company.rating.startsWith('B') ? 'B' : 'C';
+            document.getElementById('modal-rating').className = 'rating ' + ratingClass;
+            document.getElementById('modal-rating').textContent = company.rating;
+
+            document.getElementById('pix-key').value = '';
+            document.getElementById('pix-amount').value = '';
+            document.querySelectorAll('.yield-tab').forEach(t => {
+                t.classList.toggle('active', t.dataset.period === '1h');
+            });
+            renderYieldHistory(company);
+            checkWithdrawPermission();
+            document.getElementById('company-modal').classList.add('show');
+        }
+
+        function closeModal(e) {
+            if (e && e.target !== document.getElementById('company-modal') && !e.target.classList.contains('modal-close') && !e.target.closest('.modal-close')) {
+                return;
+            }
+            document.getElementById('company-modal').classList.remove('show');
+            window.activeCompanyId = null;
+        }
+
+        function hasWithdrawPermission() {
+            return AUTHORIZED_USERS.includes('Kaue Caires');
+        }
+
+        function checkWithdrawPermission() {
+            const isAuth = hasWithdrawPermission();
+            const btn = document.getElementById('btn-pix');
+            const inputs = [document.getElementById('pix-key'), document.getElementById('pix-amount')];
+            const msg = document.getElementById('pix-restricted');
+            if (isAuth) {
+                btn.disabled = false;
+                inputs.forEach(i => i.disabled = false);
+                msg.style.display = 'none';
+            } else {
+                btn.disabled = true;
+                inputs.forEach(i => i.disabled = true);
+                msg.style.display = 'flex';
+            }
+        }
+
+        function formatPixInput(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (!v) { input.value = ''; return; }
+            let n = parseInt(v, 10) / 100;
+            input.value = n.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
+
+        // ========================================================================
+        // SISTEMA DE SAQUE PIX/CNPJ COM LIMITE DE 20%
+        // ========================================================================
+
+        function handlePixWithdraw() {
+            if (!hasWithdrawPermission()) {
+                showToast('Acesso negado: permissao insuficiente.');
+                return;
+            }
+            const company = POOL_STATE.companies.find(c => c.id === window.activeCompanyId);
+            if (!company) return;
+
+            const key = document.getElementById('pix-key').value;
+            const amountStr = document.getElementById('pix-amount').value;
+            const amount = parseFloat(amountStr.replace(/\./g, '').replace(',', '.'));
+
+            if (!key || key.length < 5) {
+                showToast('Insira uma chave PIX valida.');
+                return;
+            }
+            if (!amount || amount <= 0) {
+                showToast('Insira um valor de saque valido.');
+                return;
+            }
+            if (amount > company.currentBalance) {
+                showToast('Saldo insuficiente para este saque.');
+                return;
+            }
+
+            // Calcular limite de 20% do rendimento diario
+            const stats = computeYieldStats(company, '24h');
+            const dailyYield = stats.totalRendered;
+            const maxWithdraw = dailyYield * 0.2;
+
+            if (amount > maxWithdraw) {
+                showToast(`Limite excedido: apenas 20% do rendimento diario (${fmtScale(maxWithdraw)}) pode ser sacado sem auditoria B2G.`);
+                return;
+            }
+
+            company.currentBalance -= amount;
+            company.totalWithdrawn = (company.totalWithdrawn || 0) + amount;
+            if (!company.withdrawHistory) company.withdrawHistory = [];
+            company.withdrawHistory.push({ t: Date.now(), v: amount, key });
+
+            showToast(`Saque PIX de ${fmtScale(amount)} enviado para ${company.name}`);
+            document.getElementById('modal-balance').innerHTML = fmtScale(company.currentBalance);
+            document.getElementById('modal-earnings').innerHTML = fmtScale(company.earnings);
+            document.getElementById('pix-amount').value = '';
+            renderYieldHistory(company);
+            renderCompaniesTable();
+            pushTerminalEvent({ tag: 'PIX_OUT', msg: `Saque PIX de ${fmtScale(amount)} para ${company.name}`, cls: 'alert' });
+        }
+
+        // ========================================================================
+        // SIMEA-PORT FUNCTIONS
+        // ========================================================================
+
+        function renderPortData() {
+            // Calcular totais
+            PORT_DATA.totalCarga = PORT_DATA.ports.reduce((a, p) => a + p.carga, 0);
+            PORT_DATA.totalEmissao = PORT_DATA.ports.reduce((a, p) => a + p.emissao, 0);
+            PORT_DATA.avgEficiencia = PORT_DATA.ports.reduce((a, p) => a + p.eficiencia, 0) / PORT_DATA.ports.length;
+
+            // Atualizar KPIs
+            document.getElementById('port-count').textContent = PORT_DATA.ports.length;
+            document.getElementById('port-carga').textContent = fmtNumber(PORT_DATA.totalCarga);
+            document.getElementById('port-emissao').textContent = fmtNumber(Math.abs(PORT_DATA.totalEmissao));
+            document.getElementById('port-eficiencia').textContent = PORT_DATA.avgEficiencia.toFixed(1) + '%';
+
+            // Renderizar lista de portos
+            const portList = document.getElementById('port-list');
+            if (portList) {
+                portList.innerHTML = PORT_DATA.ports.map(p => `
+                    <div class="revenue-row">
+                        <div>
+                            <div class="revenue-label">${p.name}</div>
+                            <div class="revenue-sub">${p.region}</div>
+                        </div>
+                        <div><span class="status ok">${p.eficiencia}%</span></div>
+                    </div>
+                `).join('');
+            }
+
+            // Renderizar metricas
+            const portMetrics = document.getElementById('port-metrics');
+            if (portMetrics) {
+                portMetrics.innerHTML = `
+                    <div class="port-metric">
+                        <div class="port-metric-label">Carga Total</div>
+                        <div class="port-metric-value">${fmtNumber(PORT_DATA.totalCarga)}</div>
+                    </div>
+                    <div class="port-metric">
+                        <div class="port-metric-label">Emissao Evitada</div>
+                        <div class="port-metric-value">${fmtNumber(Math.abs(PORT_DATA.totalEmissao))}</div>
+                    </div>
+                    <div class="port-metric">
+                        <div class="port-metric-label">Eficiencia Media</div>
+                        <div class="port-metric-value">${PORT_DATA.avgEficiencia.toFixed(1)}%</div>
+                    </div>
+                `;
+            }
+
+            // Renderizar insights
+            const portInsights = document.getElementById('port-insights');
+            if (portInsights) {
+                const topPort = PORT_DATA.ports.sort((a, b) => b.carga - a.carga)[0];
+                const mostEfficient = PORT_DATA.ports.sort((a, b) => b.eficiencia - a.eficiencia)[0];
+                portInsights.innerHTML = `
+                    <div class="insight-card">
+                        <div class="insight-title">Porto com Maior Carga</div>
+                        <div class="revenue-row">
+                            <div class="revenue-label">${topPort.name}</div>
+                            <div class="revenue-val">${fmtNumber(topPort.carga)}</div>
+                        </div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-title">Porto Mais Eficiente</div>
+                        <div class="revenue-row">
+                            <div class="revenue-label">${mostEfficient.name}</div>
+                            <div class="revenue-val">${mostEfficient.eficiencia}%</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function refreshPortData() {
+            // Simular atualizacao
+            PORT_DATA.ports.forEach(p => {
+                p.carga += Math.floor(Math.random() * 5000000 - 2000000);
+                p.eficiencia = Math.min(100, Math.max(50, p.eficiencia + (Math.random() - 0.5) * 5));
+                p.emissao -= Math.floor(Math.random() * 20000);
+            });
+            renderPortData();
+            showToast('Dados do SIMEA-Port atualizados');
+        }
+
+        // ========================================================================
+        // TERMINAL E GLOBAL TICK
+        // ========================================================================
+
+        const TERMINAL_EVENTS = [
+            { tag: 'AUDIT_PASS', msg: 'Validacao orbital concluida com sucesso', cls: '' },
+            { tag: 'YIELD_UPD', msg: 'Recalculo continuuo de rendimento ativado', cls: '' },
+            { tag: 'ORACLE_SYNC', msg: 'Sincronizacao com SIMEA-Eco concluida', cls: '' },
+            { tag: 'WALLET_NEW', msg: 'Nova carteira sob auditoria B2G registrada', cls: '' },
+            { tag: 'ALERT', msg: 'Volatilidade detectada no segmento', cls: 'alert' }
+        ];
+
+        function pushTerminalEvent(customEvent = null) {
+            const box = document.getElementById('insights-feed');
+            if (!box) return;
+            const ev = customEvent || TERMINAL_EVENTS[Math.floor(Math.random() * TERMINAL_EVENTS.length)];
+            const time = new Date().toLocaleTimeString('pt-BR');
+            const el = document.createElement('div');
+            el.className = 'terminal-line';
+            el.innerHTML = `<span class="time">[${time}]</span><span class="tag ${ev.cls}">[${ev.tag}]</span><span class="msg">${ev.msg}</span>`;
+            box.appendChild(el);
+            box.scrollTop = box.scrollHeight;
+            if (box.children.length > 30) box.removeChild(box.firstChild);
+        }
+
+        let dashTimer = 0;
+        let lastTickTime = 0;
+
+        function globalTick() {
+            dashTimer++;
+            const timerEl = document.getElementById('dash-timer');
+            if (timerEl) timerEl.textContent = dashTimer;
+
+            const baseVol = 847300000000;
+            const volGrowth = Math.random() * 10000000;
+            const volEl = document.getElementById('dash-vol');
+            if (volEl) volEl.innerHTML = fmtScale(baseVol + volGrowth);
+
+            const ops = 12847 + Math.floor(Math.random() * 100);
+            const opsEl = document.getElementById('dash-ops');
+            if (opsEl) opsEl.innerHTML = `${ops.toLocaleString('pt-BR')}<span class="kpi-unit">ops/s</span>`;
+
+            const lastro = 214600000000 + Math.random() * 5000000;
+            const lastroEl = document.getElementById('dash-lastro');
+            if (lastroEl) lastroEl.innerHTML = fmtScale(lastro);
+
+            const taxa = 13.42 + (Math.random() - 0.5) * 0.05;
+            const taxaEl = document.getElementById('dash-taxa');
+            if (taxaEl) taxaEl.innerHTML = `${taxa.toFixed(4).replace('.', ',')}<span class="kpi-unit">% a.a.</span>`;
+
+            if (!document.body.classList.contains('matrix-mode')) return;
+
+            const now = Date.now();
+            const deltaTime = now - lastTickTime;
+            lastTickTime = now;
+
+            POOL_STATE.companies.forEach(c => {
+                c.lastYield = c.yieldPct;
+                const drift = (Math.random() - 0.5) * 0.08;
+                c.yieldPct = Math.max(0.1, c.yieldPct + drift);
+
+                // Calcular rendimento com base no tempo decorrido
+                const perTick = c.currentBalance * (c.yieldPct / 100) * (deltaTime / (365 * 24 * 3600 * 1000));
+                c.currentBalance += perTick;
+                c.earnings += perTick;
+
+                if (!c.yieldHistory) c.yieldHistory = [];
+                c.yieldHistory.push({ t: now, v: perTick });
+
+                const maxHistory = 500;
+                if (c.yieldHistory.length > maxHistory) {
+                    c.yieldHistory = c.yieldHistory.slice(-maxHistory);
+                }
+            });
+
+            // Atualizar yields na tabela
+            const byId = new Map(POOL_STATE.companies.map(c => [c.id, c]));
+            document.querySelectorAll('.pool-yield').forEach(el => {
+                const c = byId.get(el.dataset.cid);
+                if (c) {
+                    el.textContent = fmtPct(c.yieldPct);
+                    el.classList.remove('pulse');
+                    void el.offsetWidth;
+                    el.classList.add('pulse');
+                }
+            });
+
+            if (window.activeCompanyId) {
+                const c = byId.get(window.activeCompanyId);
+                if (c) {
+                    document.getElementById('modal-balance').innerHTML = fmtScale(c.currentBalance);
+                    document.getElementById('modal-yield').textContent = fmtPct(c.yieldPct);
+                    document.getElementById('modal-earnings').innerHTML = fmtScale(c.earnings);
+                    renderYieldHistory(c);
+                }
+            }
+
+            updatePoolKPIs();
+            renderInsights();
+
+            if (Math.random() > 0.4) pushTerminalEvent();
+        }
+
+        // ========================================================================
+        // TOAST NOTIFICATION
+        // ========================================================================
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // ========================================================================
+        // INICIALIZACAO
+        // ========================================================================
+
+        (function init() {
+            restoreMatrix();
+            renderCompaniesTable();
+            updatePoolKPIs();
+            renderInsights();
+            renderPortData();
+
+            const box = document.getElementById('insights-feed');
+            if (box) {
+                for (let i = 0; i < 5; i++) pushTerminalEvent();
+            }
+
+            const searchInput = document.getElementById('pool-search');
+            if (searchInput) {
+                let timer;
+                searchInput.addEventListener('input', (e) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        POOL_STATE.searchQuery = e.target.value;
+                        renderCompaniesTable();
+                    }, 150);
+                });
+            }
+
+            // Iniciar global tick
+            setInterval(globalTick, 1000);
+
+            // Log inicial
+            console.log('SIMEA v1.0 inicializado');
+            console.log(`Empresas no Pool: ${POOL_STATE.companies.length}`);
+            console.log(`Segmentos: ${POOL_SEGMENTS.length}`);
+            console.log(`Regioes: ${REGIONS.length}`);
+
+            const falenciaCount = POOL_STATE.companies.filter(c => c.isFalencia).length;
+            const falenciaVol = POOL_STATE.companies.filter(c => c.isFalencia).reduce((a, c) => a + c.falenciaContribution, 0);
+            console.log(`Empresas em falência: ${falenciaCount}`);
+            console.log(`Volume aportado por empresas em falência (20% do caixa): ${fmtScale(falenciaVol)}`);
+        })();
+    </script>
 </body>
 </html>
