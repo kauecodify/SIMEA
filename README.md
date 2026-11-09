@@ -4,6 +4,8 @@
 
 SIMEA e uma plataforma tecnologica desenvolvida pela LOWDATAESC para revitalizacao de empresas em falencia ou recuperacao judicial que possuan historico de captacao de recursos do cofre publico. O sistema agrega capital ocioso de multiplos aportadores em um Pool Soberano tokenizado, direcionando recursos para retomada da manufatura e operacao dessas empresas, gerando yield para o erario, empregos e lastro bio-digital sob auditoria B2G continua.
 
+<img width="1322" height="675" alt="image" src="https://github.com/user-attachments/assets/c07b00ff-8d30-4181-b9a4-5e2c5971f1d1" />
+
 ---
 
 ## Tese de Investimento
@@ -13,6 +15,8 @@ SIMEA e uma plataforma tecnologica desenvolvida pela LOWDATAESC para revitalizac
 Empresas que receberam recursos publicos (subsidios, financiamentos BNDES, incentivos fiscais) e entraram em falencia ou recuperacao judicial representam um passivo para o erario. Esses ativos, embora com potencial produtivo, encontram-se em estado de inercia, com capital ocioso e estrutura subutilizada.
 
 ### Solucao SIMEA
+
+<img width="914" height="646" alt="image" src="https://github.com/user-attachments/assets/c7e20b62-248c-4063-ae79-60d91ec8c11e" />
 
 1. **Identificacao e Captacao**: Mapeamento de empresas em situacao de falencia com historico de captacao de recursos publicos
 2. **Tokenizacao de Ativos**: Conversao de ativos fisicos e intelectuais em tokens digitais lastreados em creditos de carbono e biomassa
